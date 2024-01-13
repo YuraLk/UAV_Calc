@@ -17,6 +17,10 @@ go get -u gorm.io/driver/postgres
 go get github.com/ilyakaznacheev/cleanenv
 
 
+Запуск с параметрами по умолчанию
+
+go run internal/main.go
+
 Запуск
 
 go run internal/main.go -file /Users/yura/Desktop/Projects/Drone_Calc/server/configs/config.yaml

@@ -30,8 +30,8 @@ type Database struct {
 }
 
 type JWT struct {
-	JWTAccessKey  string `yaml:"jwt_access_key"`
-	JWTRefreshKey string `yaml:"jwt_refresh_key"`
+	JWTAccessKey  string `yaml:"jwt_access_key" env-default:"access-secret"`
+	JWTRefreshKey string `yaml:"jwt_refresh_key" env-default:"refresh-secret"`
 }
 
 var Cfg *Config
