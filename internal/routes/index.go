@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/YuraLk/drone_calc/internal/config"
-	"github.com/YuraLk/drone_calc/internal/validators"
+	"github.com/YuraLk/teca_server/internal/config"
+	"github.com/YuraLk/teca_server/internal/validators"
 	"github.com/gin-gonic/gin"
 )
 

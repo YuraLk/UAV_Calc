@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/YuraLk/drone_calc/internal/config"
-	"github.com/YuraLk/drone_calc/internal/database/postgres"
-	"github.com/YuraLk/drone_calc/internal/routes"
+	"github.com/YuraLk/teca_server/internal/config"
+	"github.com/YuraLk/teca_server/internal/database/postgres"
+	"github.com/YuraLk/teca_server/internal/routes"
 )
 
 func main() {

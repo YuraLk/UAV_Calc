@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/YuraLk/drone_calc/internal/controller"
-	"github.com/YuraLk/drone_calc/internal/middleware"
+	"github.com/YuraLk/teca_server/internal/controller"
+	"github.com/YuraLk/teca_server/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 

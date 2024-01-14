@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/YuraLk/drone_calc/internal/exeptions"
-	"github.com/YuraLk/drone_calc/internal/service"
+	"github.com/YuraLk/teca_server/internal/exeptions"
+	"github.com/YuraLk/teca_server/internal/service"
 	"github.com/gin-gonic/gin"
 )
 

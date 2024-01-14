@@ -1,4 +1,4 @@
-module github.com/YuraLk/drone_calc
+module github.com/YuraLk/teca_server
 
 go 1.21.5
 

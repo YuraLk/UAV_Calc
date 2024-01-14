@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/YuraLk/drone_calc/internal/config"
-	"github.com/YuraLk/drone_calc/internal/dtos"
-	"github.com/YuraLk/drone_calc/internal/exeptions"
-	"github.com/YuraLk/drone_calc/internal/service"
-	"github.com/YuraLk/drone_calc/internal/utils"
+	"github.com/YuraLk/teca_server/internal/config"
+	"github.com/YuraLk/teca_server/internal/dtos"
+	"github.com/YuraLk/teca_server/internal/exeptions"
+	"github.com/YuraLk/teca_server/internal/service"
+	"github.com/YuraLk/teca_server/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 )

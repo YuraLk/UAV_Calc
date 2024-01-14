@@ -4,10 +4,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/YuraLk/drone_calc/internal/config"
-	"github.com/YuraLk/drone_calc/internal/database/postgres"
-	"github.com/YuraLk/drone_calc/internal/dtos"
-	"github.com/YuraLk/drone_calc/internal/models"
+	"github.com/YuraLk/teca_server/internal/config"
+	"github.com/YuraLk/teca_server/internal/database/postgres"
+	"github.com/YuraLk/teca_server/internal/dtos"
+	"github.com/YuraLk/teca_server/internal/models"
 	"github.com/dgrijalva/jwt-go"
 	"gorm.io/gorm"
 )

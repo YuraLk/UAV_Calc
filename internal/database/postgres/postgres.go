@@ -3,8 +3,8 @@ package postgres
 import (
 	"fmt"
 
-	"github.com/YuraLk/drone_calc/internal/config"
-	"github.com/YuraLk/drone_calc/internal/models"
+	"github.com/YuraLk/teca_server/internal/config"
+	"github.com/YuraLk/teca_server/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

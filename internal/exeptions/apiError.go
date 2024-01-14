@@ -3,7 +3,7 @@ package exeptions
 import (
 	"net/http"
 
-	"github.com/YuraLk/drone_calc/internal/utils"
+	"github.com/YuraLk/teca_server/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
