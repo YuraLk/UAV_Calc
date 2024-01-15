@@ -21,7 +21,7 @@ func Connect() {
 		panic(err)
 	}
 
-	db.AutoMigrate(&models.User{}, &models.Session{}, &models.Access{}, &models.Trial{}, &models.Linkage{}, &models.Base{}, &models.Atmosphere{}, &models.Equipment{}, &models.Manufacturer{}, &models.Model{}, &models.Motor{}, &models.Propeller{}, &models.Controller{}, &models.Composit{}, &models.Battery{}, &models.Assembly{})
+	db.AutoMigrate(&models.User{}, &models.Session{}, &models.Access{}, &models.Trial{}, &models.Linkage{}, &models.Base{}, &models.Atmosphere{}, &models.Equipment{}, &models.Manufacturer{}, &models.Model{}, &models.Motor{}, &models.Propeller{}, &models.Layout{}, &models.Controller{}, &models.Composit{}, &models.Battery{}, &models.Assembly{})
 	DB = db
 
 }

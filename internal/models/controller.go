@@ -12,5 +12,6 @@ type Controller struct {
 	Voltage    float32 `json:"voltage" gorm:"not null"`
 	Resistance float32 `json:"resistance" gorm:"not null"`
 	Weight     uint    `json:"weight" gorm:"not null"`
+	LayoutID   uint    `json:"layoutID" gorm:"not null"`
 	Assembly   Assembly
 }
