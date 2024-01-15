@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/YuraLk/teca_server/internal/exeptions"
+	"github.com/YuraLk/teca_server/internal/models"
 	"github.com/YuraLk/teca_server/internal/service"
 	"github.com/YuraLk/teca_server/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -14,28 +15,19 @@ type CalculateRequest struct {
 	RamaMass  uint64  `json:"rama_mass" binding:"required"`
 	RamaVents uint8   `json:"rama_vents" binding:"required"` // Кол-во винтов
 	// Аккумулятор
-	AccVol     uint32 `json:"acc_vol" binding:"required"`
-	AccVoltage struct {
-		min float32
-		max float32
-	} `json:"acc_voltage" binding:"required"`
-	AccOut struct {
-		inv float32
-		max float32
-	} `json:"acc_out" binding:"required"`
-	AccMass    uint64 `json:"acc_mass" binding:"required"`  // Масса банки аккумулятора
-	AccBanks   uint8  `json:"acc_banks" binding:"required"` // Кол-во банок
-	AccCount   uint8  `json:"acc_count" binding:"required"` // Кол-во аккумуляторов с таким же кол-вом банок
-	CompositID uint   `json:"compositID"`                   // Химический состав и сопутствующие свойства. Необзателены.
+	AccVol     uint    `json:"acc_vol" binding:"required"`
+	AccVoltage float32 `json:"acc_voltage" binding:"required"`
+	AccOut     float32 `json:"acc_out" binding:"required"`
+	AccMass    uint64  `json:"acc_mass" binding:"required"`  // Масса банки аккумулятора
+	AccBanks   uint8   `json:"acc_banks" binding:"required"` // Кол-во банок
+	AccCount   uint8   `json:"acc_count" binding:"required"` // Кол-во аккумуляторов с таким же кол-вом банок
+	CompositID uint    `json:"compositID"`                   // Химический состав и сопутствующие свойства. Необзателены.
 	// Регулятор
-	ContCurrent struct {
-		inv uint8
-		max uint8
-	} `json:"cont_current" binding:"required"`
-	ContVoltage    float32 `json:"cont_voltage" binding:"required"`
-	ContResistance float32 `json:"cont_resistance" binding:"required"`
-	ContWeight     uint    `json:"cont_weight" binding:"required"`
-	LayoutID       uint    `json:"layoutID" binding:"required"` // Компоновка ESC
+	ContCurrent    models.CurrentRange `json:"cont_current" binding:"required"`
+	ContVoltage    float32             `json:"cont_voltage" binding:"required"`
+	ContResistance float32             `json:"cont_resistance" binding:"required"`
+	ContWeight     uint                `json:"cont_weight" binding:"required"`
+	LayoutID       uint                `json:"layoutID" binding:"required"` // Компоновка ESC
 	// Навесное оборудование
 	EquipCurrent float32 `json:"equip_current" binding:"required"`
 	EquipWeight  uint    `json:"equip_weight" binding:"required"`
@@ -62,8 +54,11 @@ type CalculateRequest struct {
 }
 
 type CalculateResponse struct {
-	TotalMass      uint64  `json:"total_mass"`
-	EnvAirPressure float32 `json:"env_air_pressure"`
+	TotalMass       uint64  `json:"total_mass"`
+	EnvAirPressure  float32 `json:"env_air_pressure"`
+	AccTotalVoltage float32 `json:"acc_total_voltage"`
+	AccTotalVol     uint    `json:"acc_total_vol"`
+	AccMaxOut       float32 `json:"acc_max_out"`
 }
 
 // Расчет характеристик
@@ -82,8 +77,8 @@ func Calculate(c *gin.Context) {
 
 	// Вычисление плотности воздуха
 	EnvAirPressure := service.GetAirDensity(req.EnvTemp, req.EnvPress)
-	// Вычисление массы энергохранилища
-	AccTotalMass := req.AccMass * uint64(req.AccBanks) * uint64(req.AccCount)
+	// Вычисление характеристик аккумулятора
+	AccTotalMass, AccTotalVoltage, AccTotalVol, AccMaxOut := service.GetAccFeatures(req.AccVol, req.AccVoltage, req.AccOut, req.AccMass, req.AccBanks, req.AccCount)
 	// Вычисление массы ESC
 	ContTolalMass, err := service.GetContMass(req.ContWeight, req.RamaVents, req.LayoutID)
 	if err != nil {
@@ -95,8 +90,11 @@ func Calculate(c *gin.Context) {
 
 	// Возвращаем вычисленные значения
 	CalculateResponse := CalculateResponse{
-		TotalMass:      TotalMass,
-		EnvAirPressure: EnvAirPressure,
+		TotalMass:       TotalMass,
+		EnvAirPressure:  EnvAirPressure,
+		AccTotalVoltage: AccTotalVoltage,
+		AccTotalVol:     AccTotalVol,
+		AccMaxOut:       AccMaxOut,
 	}
 
 	c.JSON(200, &CalculateResponse)

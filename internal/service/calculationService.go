@@ -43,3 +43,16 @@ func GetTotalMass(masses ...uint64) uint64 {
 	}
 	return totalMass
 }
+
+func GetAccFeatures(AccVol uint, AccVoltage float32, AccOut float32, AccMass uint64, AccBanks uint8, AccCount uint8) (uint64, float32, uint, float32) {
+	// Масса аккумулятора
+	AccTotalMass := AccMass * uint64(AccBanks) * uint64(AccCount)
+	// Общее напряжение
+	AccTotalVoltage := AccVoltage * float32(AccBanks)
+	// Общая емкость аккумулятора в Ач
+	AccTotalVol := AccVol * uint(AccCount)
+	// Максимальная токоотдача
+	AccMaxOut := float32(AccTotalVol) * AccOut
+
+	return AccTotalMass, AccTotalVoltage, AccTotalVol, AccMaxOut
+}
