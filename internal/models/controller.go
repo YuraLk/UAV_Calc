@@ -9,7 +9,8 @@ type Controller struct {
 		inv uint8
 		max uint8
 	} `json:"current" gorm:"type:jsonb;not null"`
-	Voltage  float32 `json:"voltage" gorm:"not null"`
-	Weight   uint    `json:"weight" gorm:"not null"`
-	Assembly Assembly
+	Voltage    float32 `json:"voltage" gorm:"not null"`
+	Resistance float32 `json:"resistance" gorm:"not null"`
+	Weight     uint    `json:"weight" gorm:"not null"`
+	Assembly   Assembly
 }
