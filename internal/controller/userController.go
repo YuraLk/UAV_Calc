@@ -2,7 +2,6 @@ package controller
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/YuraLk/teca_server/internal/config"
@@ -11,7 +10,6 @@ import (
 	"github.com/YuraLk/teca_server/internal/service"
 	"github.com/YuraLk/teca_server/internal/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 )
 
 type RegisterRequest struct {
@@ -29,7 +27,7 @@ type LoginRequest struct {
 }
 
 type UpdateUserRequest struct {
-	Name   string `json:"name" binding:"required"`
+	Name   string `json:"name" binding:"required,fullName"`
 	Email  string `json:"email" binding:"required,email"`
 	Phone  string `json:"phone" binding:"required"`
 	Device string `json:"device" binding:"required"`
@@ -74,13 +72,6 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// Проведение кастомной валидации
-	if err := c.ShouldBindWith(&req, binding.Query); err != nil {
-		errors := utils.FormatErrors(err.Error())
-		exeptions.UnprocessableEntity(c, errors)
-		return
-	}
-
 	// Извлекаем данные из тела application/json
 	c.ShouldBindJSON(&req)
 
@@ -116,6 +107,13 @@ func Refresh(c *gin.Context) {
 func UpdateUser(c *gin.Context) {
 	var req UpdateUserRequest
 
+	// Проверка валидации
+	if err := c.ShouldBind(&req); err != nil {
+		errors := utils.FormatErrors(err.Error())
+		exeptions.UnprocessableEntity(c, errors)
+		return
+	}
+
 	// Из контекста достаем декодированныые данные
 	decodedData, exists := c.Get("user")
 	if !exists {
@@ -146,7 +144,6 @@ func UpdateUser(c *gin.Context) {
 func Logout(c *gin.Context) {
 	// Получаем Refresh - токен
 	refreshToken, err := c.Cookie("refreshToken")
-	fmt.Print(refreshToken)
 	if err != nil {
 		exeptions.UnauthorizedError(c, err)
 		return

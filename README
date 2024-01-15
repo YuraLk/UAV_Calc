@@ -1,8 +1,6 @@
 Инициализация проекта
 go mod init github.com/YuraLk/drone_calc
 
-
-
 Зависимости
 
 HTTP - фреймворк для Golang
@@ -34,5 +32,10 @@ go build internal/main.go
 go run internal/main.go -h или ./drone_calc -h
 
 
-Обновление репозитория проекта
+Обновление репозитория проекта. Названия коммитов - дата и время коммита.
 
+git add .
+
+git commit -m '2023-01-15 03:02'
+
+git push

@@ -5,6 +5,8 @@ import (
 )
 
 type CalculateRequest struct {
+	EnvTemp  float32 `json:"env_temp"`
+	EnvPress float32 `json:"env_press"`
 }
 
 // Расчет характеристик
