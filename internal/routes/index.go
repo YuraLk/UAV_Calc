@@ -17,6 +17,7 @@ func Init() *gin.Engine {
 
 	UserRouter(apiGroup) // Добавляем роуты пользователя
 	CalculationRouter(apiGroup)
+	CompositRouter(apiGroup)
 
 	return router
 }
