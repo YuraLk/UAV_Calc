@@ -16,12 +16,11 @@ type CalculateRequest struct {
 	RamaVents uint8   `json:"rama_vents" binding:"required"` // Кол-во винтов
 	// Аккумулятор
 	AccVol     uint    `json:"acc_vol" binding:"required"`
-	AccVoltage float32 `json:"acc_voltage" binding:"required"`
 	AccOut     float32 `json:"acc_out" binding:"required"`
 	AccMass    uint64  `json:"acc_mass" binding:"required"`  // Масса банки аккумулятора
 	AccBanks   uint8   `json:"acc_banks" binding:"required"` // Кол-во банок
 	AccCount   uint8   `json:"acc_count" binding:"required"` // Кол-во аккумуляторов с таким же кол-вом банок
-	CompositID uint    `json:"compositID"`                   // Химический состав и сопутствующие свойства. Необзателены.
+	CompositID uint    `json:"compositID"`                   // Химический состав и сопутствующие свойства.
 	// Регулятор
 	ContCurrent    models.CurrentRange `json:"cont_current" binding:"required"`
 	ContVoltage    float32             `json:"cont_voltage" binding:"required"`
@@ -78,7 +77,7 @@ func Calculate(c *gin.Context) {
 	// Вычисление плотности воздуха
 	EnvAirPressure := service.GetAirDensity(req.EnvTemp, req.EnvPress)
 	// Вычисление характеристик аккумулятора
-	AccTotalMass, AccTotalVoltage, AccTotalVol, AccMaxOut := service.GetAccFeatures(req.AccVol, req.AccVoltage, req.AccOut, req.AccMass, req.AccBanks, req.AccCount)
+	AP := service.GetAccFeatures(req.AccVol, req.AccOut, req.AccMass, req.AccBanks, req.AccCount)
 	// Вычисление массы ESC
 	ContTolalMass, err := service.GetContMass(req.ContWeight, req.RamaVents, req.LayoutID)
 	if err != nil {
@@ -86,15 +85,14 @@ func Calculate(c *gin.Context) {
 		return
 	}
 	// Вычисление общей массы БПЛА
-	TotalMass := service.GetTotalMass(req.RamaMass, AccTotalMass, uint64(ContTolalMass), uint64(req.EquipWeight), uint64(req.MotWeight*uint(req.RamaVents)), uint64(req.PropWeight*uint(req.RamaVents)))
+	TotalMass := service.GetTotalMass(req.RamaMass, AP.AccTotalMass, uint64(ContTolalMass), uint64(req.EquipWeight), uint64(req.MotWeight*uint(req.RamaVents)), uint64(req.PropWeight*uint(req.RamaVents)))
 
 	// Возвращаем вычисленные значения
 	CalculateResponse := CalculateResponse{
-		TotalMass:       TotalMass,
-		EnvAirPressure:  EnvAirPressure,
-		AccTotalVoltage: AccTotalVoltage,
-		AccTotalVol:     AccTotalVol,
-		AccMaxOut:       AccMaxOut,
+		TotalMass:      TotalMass,
+		EnvAirPressure: EnvAirPressure,
+		AccTotalVol:    AP.AccTotalVol,
+		AccMaxOut:      AP.AccMaxOut,
 	}
 
 	c.JSON(200, &CalculateResponse)

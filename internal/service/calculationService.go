@@ -7,6 +7,12 @@ import (
 	"github.com/YuraLk/teca_server/internal/models"
 )
 
+type AccumulatorProperties struct {
+	AccTotalMass uint64
+	AccTotalVol  uint
+	AccMaxOut    float32
+}
+
 func GetAirDensity(EnvTemp float32, EnvPress float32) float32 {
 	// Переводим температуру в Кельвины
 	EnvTemp += 273.15
@@ -44,15 +50,26 @@ func GetTotalMass(masses ...uint64) uint64 {
 	return totalMass
 }
 
-func GetAccFeatures(AccVol uint, AccVoltage float32, AccOut float32, AccMass uint64, AccBanks uint8, AccCount uint8) (uint64, float32, uint, float32) {
+func GetAccFeatures(AccVol uint, AccOut float32, AccMass uint64, AccBanks uint8, AccCount uint8) AccumulatorProperties {
 	// Масса аккумулятора
 	AccTotalMass := AccMass * uint64(AccBanks) * uint64(AccCount)
-	// Общее напряжение
-	AccTotalVoltage := AccVoltage * float32(AccBanks)
+
+	// Номинальное напряжение
+	// AccTotalVoltage := AccVoltage * float32(AccBanks)
+	// Минимальное напряжение
+
+	// Максимальное напряжение
+
 	// Общая емкость аккумулятора в Ач
 	AccTotalVol := AccVol * uint(AccCount)
 	// Максимальная токоотдача
 	AccMaxOut := float32(AccTotalVol) * AccOut
 
-	return AccTotalMass, AccTotalVoltage, AccTotalVol, AccMaxOut
+	// Доступная емкость аккумулятора
+
+	return AccumulatorProperties{
+		AccTotalMass: AccTotalMass,
+		AccTotalVol:  AccTotalVol,
+		AccMaxOut:    AccMaxOut,
+	}
 }

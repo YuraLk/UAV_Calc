@@ -3,7 +3,7 @@ package models
 import "gorm.io/gorm"
 
 type CurrentRange struct {
-	inv uint8
+	nom uint8
 	max uint8
 }
 
