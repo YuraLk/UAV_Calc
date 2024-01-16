@@ -12,4 +12,6 @@ func CompositRouter(router *gin.RouterGroup) {
 
 	group.GET("/", middleware.AuthMiddleware(), controller.GetComposits)
 	group.POST("/", middleware.RoleMiddleware([]string{"ADMIN"}), controller.CreateComposit)
+	group.PUT("/", middleware.RoleMiddleware([]string{"ADMIN"}), controller.UpdateComposit)
+	group.DELETE("/:id", middleware.RoleMiddleware([]string{"ADMIN"}), controller.DeleteComposit)
 }
