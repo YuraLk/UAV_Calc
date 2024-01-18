@@ -29,11 +29,11 @@ type MotorProperties struct {
 	MotMechanicalPower float32
 }
 
-type PropProperties struct {
-	PropAerodynamicQuality float64
-}
-
 type FlightProperties struct {
+	PropMinFreq        float64
+	PropMinPower       float64
+	UsefulPowerOfPlant float32
+	HangingTime        float32
 }
 
 func GetAirDensity(EnvTemp float32, EnvPress float32) float32 {
@@ -140,18 +140,26 @@ func GetMotorFeatures(MotPeakCurrent float32, AccMaxVoltage float32) MotorProper
 	}
 }
 
-func GetPropFeatures(PropDiameter float32, PropPowerConst float32, PropTractionConst float32) PropProperties {
-	// Аэродинамеческое качество пропеллера
-	PropAerodynamicQuality := math.Pow(float64(PropPowerConst), (3/2)) / float64(PropTractionConst)
-
-	return PropProperties{
-		PropAerodynamicQuality: PropAerodynamicQuality,
-	}
-}
-
 // Первый аргумент - вес сборки в Ньютонах
-func GetFlightFeatures(AssemblyWeight float32, PropPowerConst float32, PropTractionConst float32, EnvAirPressure float32, PropDiameter float32) FlightProperties {
-	// F = alpha*ro*n^2*D^4
+func GetFlightFeatures(AssemblyWeight float32, PropPowerConst float32, PropTractionConst float32, EnvAirPressure float32, PropDiameter float32, BattEnergyReserve float32) FlightProperties {
+	const n float32 = 0.9 // Коэффицент полезного действия всей силовой установки
+	// Аэродинамеческое качество пропеллера
+	// PropAerodynamicQuality := math.Pow(float64(PropPowerConst), (3/2)) / float64(PropTractionConst)
+	// Вычисление минимальной частоты вращения винта, необходимого для поддержания БПЛА в воздухе
+	PropMinFreq := math.Sqrt(float64(AssemblyWeight) / (float64(PropPowerConst) * float64(EnvAirPressure) * math.Pow(float64(PropDiameter), 4)))
+	// Вычисление минимальной необходимой мощности для поддержания БПЛА в воздухе
+	PropMinPower := float64(PropTractionConst) * float64(EnvAirPressure) * math.Pow(PropMinFreq, 3) * math.Pow(float64(PropDiameter), 5)
+	// Эффективность пропеллера
+	PropEffectivity := AssemblyWeight / float32(PropMinPower)
+	// Мощность, расходуемая пропеллерами, то есть полезная мощность всей силовой установки, которая может включать несколько ВМГ
+	UsefulPowerOfPlant := AssemblyWeight / PropEffectivity
+	// Время полета в режиме висения
+	HangingTime := (BattEnergyReserve * n) / UsefulPowerOfPlant
 
-	return FlightProperties{}
+	return FlightProperties{
+		PropMinFreq:        PropMinFreq,
+		PropMinPower:       PropMinPower,
+		UsefulPowerOfPlant: UsefulPowerOfPlant,
+		HangingTime:        HangingTime,
+	}
 }

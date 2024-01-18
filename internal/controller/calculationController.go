@@ -75,8 +75,11 @@ type CalculateResponse struct {
 	// Характеристики двигателя
 	MotElectricPower   float32 `json:"mot_electric_power"`
 	MotMechanicalPower float32 `json:"mot_mechanical_power"`
-	// Характеристики пропеллера
-	PropAerodynamicQuality float64 `json:"prop_aerodynamic_quality"`
+	// Характеристики полетных характеристик
+	PropMinFreq        float64 `json:"prop_min_freq"`
+	PropMinPower       float64 `json:"prop_min_power"`
+	UsefulPowerOfPlant float32 `json:"useful_power_of_plant"`
+	HangingTime        float32 `json:"hanging_time"`
 }
 
 // Расчет характеристик
@@ -109,37 +112,37 @@ func Calculate(c *gin.Context) {
 	// Вычисление общей массы БПЛА
 	AssemblyMass := service.GetAssemblyMass(req.FrameMass, AP.BattMass, uint64(ContTolalMass), uint64(req.EquipMass), uint64(req.MotorMass*uint(req.AxisNumber)), uint64(req.PropMass*float32(req.AxisNumber)))
 	const G float32 = 9.8
-	// Общий вес БПЛА в Ньютонах
-	AssemblyWeight := float32(AssemblyMass) * G
+	// Общий вес БПЛА в Ньютонах, за исключением массы аккумулятора
+	AssemblyWeight := float32(AssemblyMass-AP.BattMass) * G
 
 	// Вычисление характеристик мотора
 	MP := service.GetMotorFeatures(req.MotorPeakCurrent, AP.BattMaxVoltage)
 
-	// Вычисление характеристик пропеллера
-	PP := service.GetPropFeatures(req.PropDiameter, req.PropPowerConst, req.PropTractionConst)
-
 	// Вычисление полетных характеристик
-	FP := service.GetFlightFeatures(AssemblyWeight, req.PropPowerConst, req.PropTractionConst, EnvAirPressure, req.PropDiameter)
+	FP := service.GetFlightFeatures(AssemblyWeight, req.PropPowerConst, req.PropTractionConst, EnvAirPressure, req.PropDiameter, AP.BattEnergyReserve)
 
 	// Возвращаем вычисленные значения
 	CalculateResponse := CalculateResponse{
-		AssemblyMass:           AssemblyMass,
-		AssemblyWeight:         AssemblyWeight,
-		EnvAirPressure:         EnvAirPressure,
-		BattMass:               AP.BattMass,
-		BattCapacity:           AP.BattCapacity,
-		BattCurrPer:            AP.BattCurrPer,
-		BattCurrMax:            AP.BattCurrMax,
-		BattAvailableCapacity:  AP.BattAvailableCapacity,
-		BattMinVoltage:         AP.BattMinVoltage,
-		BattNomVoltage:         AP.BattNomVoltage,
-		BattMaxVoltage:         AP.BattMaxVoltage,
-		BattEnergy:             AP.BattEnergy,
-		BattSpecificEnergyVol:  AP.BattSpecificEnergyVol,
-		BattEnergyReserve:      AP.BattEnergyReserve,
-		MotElectricPower:       MP.MotElectricPower,
-		MotMechanicalPower:     MP.MotMechanicalPower,
-		PropAerodynamicQuality: PP.PropAerodynamicQuality,
+		AssemblyMass:          AssemblyMass,
+		AssemblyWeight:        AssemblyWeight,
+		EnvAirPressure:        EnvAirPressure,
+		BattMass:              AP.BattMass,
+		BattCapacity:          AP.BattCapacity,
+		BattCurrPer:           AP.BattCurrPer,
+		BattCurrMax:           AP.BattCurrMax,
+		BattAvailableCapacity: AP.BattAvailableCapacity,
+		BattMinVoltage:        AP.BattMinVoltage,
+		BattNomVoltage:        AP.BattNomVoltage,
+		BattMaxVoltage:        AP.BattMaxVoltage,
+		BattEnergy:            AP.BattEnergy,
+		BattSpecificEnergyVol: AP.BattSpecificEnergyVol,
+		BattEnergyReserve:     AP.BattEnergyReserve,
+		MotElectricPower:      MP.MotElectricPower,
+		MotMechanicalPower:    MP.MotMechanicalPower,
+		PropMinFreq:           FP.PropMinFreq,
+		PropMinPower:          FP.PropMinPower,
+		UsefulPowerOfPlant:    FP.UsefulPowerOfPlant,
+		HangingTime:           FP.HangingTime,
 	}
 
 	c.JSON(200, &CalculateResponse)
