@@ -20,7 +20,7 @@ func GetComposits(c *gin.Context) []models.Composit {
 	return composits
 }
 
-func CreateComposit(c *gin.Context, Name string, Voltage types.Voltage, CRating types.Current, SafeCapacity uint8) (models.Composit, error) {
+func CreateComposit(c *gin.Context, Name string, Voltage types.Voltage, CRating types.Current, SafeCapacity float32) (models.Composit, error) {
 	composit := models.Composit{
 		Name: Name,
 		Voltage: types.JSONB{
@@ -44,7 +44,7 @@ func CreateComposit(c *gin.Context, Name string, Voltage types.Voltage, CRating 
 	return composit, nil
 }
 
-func UpdateComposit(c *gin.Context, Id uint, Name string, Voltage types.Voltage, CRating types.Current, SafeCapacity uint8) (models.Composit, error) {
+func UpdateComposit(c *gin.Context, Id uint, Name string, Voltage types.Voltage, CRating types.Current, SafeCapacity float32) (models.Composit, error) {
 	var composit models.Composit
 	if err := postgres.DB.Where("id = ?", Id).First(&composit).Error; err != nil {
 		exeptions.NotFound(c, "Запись не найдена!")

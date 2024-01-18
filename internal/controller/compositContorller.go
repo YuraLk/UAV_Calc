@@ -12,7 +12,7 @@ type CreateCompositRequest struct {
 	Name         string        `json:"name" binding:"required"`
 	Voltage      types.Voltage `json:"voltage" binding:"required"`
 	CRating      types.Current `json:"c_rating" binding:"required"`
-	SafeCapacity uint8         `json:"safe_capacity" binding:"required"`
+	SafeCapacity float32       `json:"safe_capacity" binding:"required"`
 }
 
 type UpdateCompositRequest struct {
@@ -20,7 +20,7 @@ type UpdateCompositRequest struct {
 	Name         string        `json:"name" binding:"required"`
 	Voltage      types.Voltage `json:"voltage" binding:"required"`
 	CRating      types.Current `json:"c_rating" binding:"required"`
-	SafeCapacity uint8         `json:"safe_capacity" binding:"required"`
+	SafeCapacity float32       `json:"safe_capacity" binding:"required"`
 }
 
 func GetComposits(c *gin.Context) {

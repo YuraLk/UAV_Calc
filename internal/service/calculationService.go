@@ -10,10 +10,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AccumulatorProperties struct {
-	AccTotalMass uint64
-	AccTotalVol  uint
-	AccMaxOut    uint
+type BatteryProperties struct {
+	BattMass              uint64
+	BattCapacity          float32
+	BattCurrPer           float32
+	BattCurrMax           float32
+	BattAvailableCapacity float32
+	BattMinVoltage        float32
+	BattNomVoltage        float32
+	BattMaxVoltage        float32
+	BattEnergy            float32 // Доступная энергия заряженного аккумулятора в Дж, исходя из доступной безопасной энергии
+	BattSpecificEnergyVol float32 // Удельная энергоемкость
+	BattEnergyReserve     float32 // Запас энергии батареи в Дж
+}
+
+type MotorProperties struct {
+	MotElectricPower   float32
+	MotMechanicalPower float32
+}
+
+type PropProperties struct {
+	PropAerodynamicQuality float64
+}
+
+type FlightProperties struct {
 }
 
 func GetAirDensity(EnvTemp float32, EnvPress float32) float32 {
@@ -30,7 +50,7 @@ func GetAirDensity(EnvTemp float32, EnvPress float32) float32 {
 
 }
 
-func GetContMass(c *gin.Context, ContWeight uint, RamaVents uint8, LayoutID uint) (uint, error) {
+func GetContMass(c *gin.Context, ContMass uint, AxisNumber uint8, LayoutID uint) (uint, error) {
 	var layout models.Layout
 
 	if err := postgres.DB.Where("id = ?", LayoutID).First(&layout).Error; err != nil {
@@ -38,15 +58,15 @@ func GetContMass(c *gin.Context, ContWeight uint, RamaVents uint8, LayoutID uint
 		return 0, err
 	}
 	// Кол-во витов делим на множитель компоновки, откуда понимаем, сколько ESC данной компоновки нам требуется
-	ContCount := math.Ceil(float64(RamaVents) / float64(layout.Multipler))
+	ContCount := math.Ceil(float64(AxisNumber) / float64(layout.Multipler))
 
 	// Высчитываем вес ESC
-	ContTolalMass := ContWeight * uint(ContCount)
+	ContTolalMass := ContMass * uint(ContCount)
 
 	return ContTolalMass, nil
 }
 
-func GetTotalMass(masses ...uint64) uint64 {
+func GetAssemblyMass(masses ...uint64) uint64 {
 	var totalMass uint64 = 0
 	for _, num := range masses {
 		totalMass += num
@@ -54,31 +74,84 @@ func GetTotalMass(masses ...uint64) uint64 {
 	return totalMass
 }
 
-func GetAccFeatures(c *gin.Context, AccVol uint, AccCRating types.Current, AccMass uint64, AccBanks uint8, AccCount uint8, CompositID uint) (AccumulatorProperties, error) {
+func GetBattFeatures(c *gin.Context, CellCapacity float32, CellCRating types.Current, CellMass uint64, BattTypeS uint8, BattTypeP uint8, CompositID uint) (BatteryProperties, error) {
 	// Ищем химический тип аккумулятора в БД
 	var composit models.Composit
 	if err := postgres.DB.Where("id = ?", CompositID).First(&composit).Error; err != nil {
 		exeptions.NotFound(c, "Характеристики аккумулятора с данным ID не найдены!")
-		return AccumulatorProperties{}, err
+		return BatteryProperties{}, err
 	}
 
 	// Масса аккумулятора
-	AccTotalMass := AccMass * uint64(AccBanks) * uint64(AccCount)
-	// Номинальное напряжение
-	// AccNomVoltage := composit.Voltage.nom * float32(AccBanks)
-	// Минимальное напряжение
-
-	// Максимальное напряжение
+	BattMass := CellMass * uint64(BattTypeS) * uint64(BattTypeP)
+	// Номинальное напряжение сборочных элементов аккумулятора
+	nomVoltage := composit.Voltage["nom"]
+	nomVoltageFloat64 := nomVoltage.(float64)
+	BattNomVoltage := nomVoltageFloat64 * float64(BattTypeS)
+	// Минимальное напряжение сборочных элементов аккумулятора
+	minVoltage := composit.Voltage["min"]
+	minVoltageFloat64 := minVoltage.(float64)
+	BattMinVoltage := minVoltageFloat64 * float64(BattTypeS)
+	// Максимальное напряжение сборочных элементов аккумулятора
+	maxVoltage := composit.Voltage["max"]
+	maxVoltageFloat64 := maxVoltage.(float64)
+	BattMaxVoltage := maxVoltageFloat64 * float64(BattTypeS)
 
 	// Общая емкость аккумулятора в Ач
-	AccTotalVol := AccVol * uint(AccCount)
-	// Максимальная токоотдача
-	AccMaxOut := AccTotalVol * uint(AccCRating.Max)
-	// Доступная емкость аккумулятора
+	BattCapacity := CellCapacity * float32(BattTypeP)
+	// Максимальная токоотдача аккумулятора
+	BattCurrMax := BattCapacity * float32(CellCRating.Max)
+	// Постоянная токоотдача аккумулятора
+	BattCurrPer := BattCapacity * float32(CellCRating.Per)
+	// Доступная безопасная емкость аккумулятора в A/Ч
+	BattAvailableCapacity := BattCapacity * composit.SafeCapacity
+	// Номинальная энергия аккумулятора в Дж
+	BattEnergy := BattCapacity * float32(BattNomVoltage) * 3600
+	// Удельная энергоемкость аккумулятора в Дж/кг
+	BattSpecificEnergyVol := BattEnergy / (float32(BattMass) / 1000)
+	// Запас энергии батареи в Дж
+	BattEnergyReserve := BattSpecificEnergyVol * (float32(BattMass) / 1000)
 
-	return AccumulatorProperties{
-		AccTotalMass: AccTotalMass,
-		AccTotalVol:  AccTotalVol,
-		AccMaxOut:    AccMaxOut,
+	return BatteryProperties{
+		BattMass:              BattMass,
+		BattCapacity:          BattCapacity,
+		BattCurrPer:           BattCurrPer,
+		BattCurrMax:           BattCurrMax,
+		BattAvailableCapacity: BattAvailableCapacity,
+		BattMinVoltage:        float32(BattMinVoltage),
+		BattNomVoltage:        float32(BattNomVoltage),
+		BattMaxVoltage:        float32(BattMaxVoltage),
+		BattEnergy:            BattEnergy,
+		BattSpecificEnergyVol: BattSpecificEnergyVol,
+		BattEnergyReserve:     BattEnergyReserve,
 	}, nil
+}
+
+func GetMotorFeatures(MotPeakCurrent float32, AccMaxVoltage float32) MotorProperties {
+	const N float32 = 0.93 // Коэффицент полезного действия двигателя
+
+	// Электрическая мощность двигателя в Вт
+	MotElectricPower := MotPeakCurrent * AccMaxVoltage
+	// Механическа мощность двигателя в Вт
+	MotMechanicalPower := MotElectricPower * N
+	return MotorProperties{
+		MotElectricPower:   MotElectricPower,
+		MotMechanicalPower: MotMechanicalPower,
+	}
+}
+
+func GetPropFeatures(PropDiameter float32, PropPowerConst float32, PropTractionConst float32) PropProperties {
+	// Аэродинамеческое качество пропеллера
+	PropAerodynamicQuality := math.Pow(float64(PropPowerConst), (3/2)) / float64(PropTractionConst)
+
+	return PropProperties{
+		PropAerodynamicQuality: PropAerodynamicQuality,
+	}
+}
+
+// Первый аргумент - вес сборки в Ньютонах
+func GetFlightFeatures(AssemblyWeight float32, PropPowerConst float32, PropTractionConst float32, EnvAirPressure float32, PropDiameter float32) FlightProperties {
+	// F = alpha*ro*n^2*D^4
+
+	return FlightProperties{}
 }
