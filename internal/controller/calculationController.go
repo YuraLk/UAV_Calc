@@ -75,8 +75,6 @@ type CalculateResponse struct {
 	// Характеристики двигателя
 	MotElectricPower   float32 `json:"mot_electric_power"`
 	MotMechanicalPower float32 `json:"mot_mechanical_power"`
-	// Характеристики полетных характеристик
-	Minimal Mode `json:"minimal"`
 }
 
 type Mode struct {
@@ -122,8 +120,7 @@ func Calculate(c *gin.Context) {
 	// Вычисление характеристик мотора
 	MP := service.GetMotorFeatures(req.MotorPeakCurrent, AP.BattMaxVoltage)
 
-	// Вычисление полетных характеристик
-	FP := service.GetFlightFeatures(AssemblyWeight, req.PropPowerConst, req.PropTractionConst, EnvAirPressure, req.PropDiameter, AP.BattEnergyReserve, req.MotorMaxPower)
+	// Вычисление характеристик пропеллера
 
 	// Возвращаем вычисленные значения
 	CalculateResponse := CalculateResponse{
@@ -143,7 +140,6 @@ func Calculate(c *gin.Context) {
 		BattEnergyReserve:     AP.BattEnergyReserve,
 		MotElectricPower:      MP.MotElectricPower,
 		MotMechanicalPower:    MP.MotMechanicalPower,
-		Minimal:               Mode(FP.Minimal),
 	}
 
 	c.JSON(200, &CalculateResponse)
