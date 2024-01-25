@@ -30,10 +30,14 @@ type MotorProperties struct {
 }
 
 type FlightProperties struct {
-	PropMinFreq        float64
-	PropMinPower       float64
+	Minimal Mode
+}
+
+type Mode struct {
+	PropFreq           float32
+	PropPower          float32
 	UsefulPowerOfPlant float32
-	HangingTime        float32
+	Time               float32
 }
 
 func GetAirDensity(EnvTemp float32, EnvPress float32) float32 {
@@ -140,26 +144,44 @@ func GetMotorFeatures(MotPeakCurrent float32, AccMaxVoltage float32) MotorProper
 	}
 }
 
+func GetAssemblyWeight(AssemblyMass uint64, BattMass uint64) float32 {
+	const G float32 = 9.8
+	// Получаем массу сборки без массы батареи в граммах
+	UAVMass := AssemblyMass - BattMass
+	// Получаем массу сборки в кг
+	UAVMassSI := float32(UAVMass) / 1000
+	// Получаем вес сборки в Ньютонах
+	UAVWeight := UAVMassSI * G
+	return UAVWeight
+}
+
 // Первый аргумент - вес сборки в Ньютонах
-func GetFlightFeatures(AssemblyWeight float32, PropPowerConst float32, PropTractionConst float32, EnvAirPressure float32, PropDiameter float32, BattEnergyReserve float32) FlightProperties {
+func GetFlightFeatures(AssemblyWeight float32, PropPowerConst float32, PropTractionConst float32, EnvAirPressure float32, PropDiameter float32, BattEnergyReserve float32, MotorMaxPower uint) FlightProperties {
 	const n float32 = 0.9 // Коэффицент полезного действия всей силовой установки
-	// Аэродинамеческое качество пропеллера
-	// PropAerodynamicQuality := math.Pow(float64(PropPowerConst), (3/2)) / float64(PropTractionConst)
+
+	// МИНИМАЛЬНЫЕ ХАРАКТЕРИСТИКИ
+
 	// Вычисление минимальной частоты вращения винта, необходимого для поддержания БПЛА в воздухе
-	PropMinFreq := math.Sqrt(float64(AssemblyWeight) / (float64(PropPowerConst) * float64(EnvAirPressure) * math.Pow(float64(PropDiameter), 4)))
+	PropMinFreq := math.Sqrt(float64(AssemblyWeight) / (float64(PropPowerConst) * float64(EnvAirPressure/1000) * math.Pow(float64(PropDiameter/1000), 4)))
+	// Количество оборотов в минут
+
 	// Вычисление минимальной необходимой мощности для поддержания БПЛА в воздухе
-	PropMinPower := float64(PropTractionConst) * float64(EnvAirPressure) * math.Pow(PropMinFreq, 3) * math.Pow(float64(PropDiameter), 5)
+	PropMinPower := float64(PropTractionConst) * float64(EnvAirPressure/1000) * math.Pow(PropMinFreq, 3) * math.Pow(float64(PropDiameter/1000), 5)
 	// Эффективность пропеллера
 	PropEffectivity := AssemblyWeight / float32(PropMinPower)
 	// Мощность, расходуемая пропеллерами, то есть полезная мощность всей силовой установки, которая может включать несколько ВМГ
-	UsefulPowerOfPlant := AssemblyWeight / PropEffectivity
+	UsefulMinPowerOfPlant := AssemblyWeight / PropEffectivity
 	// Время полета в режиме висения
-	HangingTime := (BattEnergyReserve * n) / UsefulPowerOfPlant
+	MinTime := (BattEnergyReserve * n) / UsefulMinPowerOfPlant
+
+	// МАКСИМАЛЬНЫЕ ХАРАКТЕРИСТИКИ
 
 	return FlightProperties{
-		PropMinFreq:        PropMinFreq,
-		PropMinPower:       PropMinPower,
-		UsefulPowerOfPlant: UsefulPowerOfPlant,
-		HangingTime:        HangingTime,
+		Minimal: Mode{
+			PropFreq:           float32(PropMinFreq),
+			PropPower:          float32(PropMinPower),
+			UsefulPowerOfPlant: UsefulMinPowerOfPlant,
+			Time:               MinTime,
+		},
 	}
 }

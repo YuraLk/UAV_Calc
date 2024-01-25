@@ -76,10 +76,14 @@ type CalculateResponse struct {
 	MotElectricPower   float32 `json:"mot_electric_power"`
 	MotMechanicalPower float32 `json:"mot_mechanical_power"`
 	// Характеристики полетных характеристик
-	PropMinFreq        float64 `json:"prop_min_freq"`
-	PropMinPower       float64 `json:"prop_min_power"`
+	Minimal Mode `json:"minimal"`
+}
+
+type Mode struct {
+	PropFreq           float32 `json:"prop_freq"`
+	PropPower          float32 `json:"prop_power"`
 	UsefulPowerOfPlant float32 `json:"useful_power_of_plant"`
-	HangingTime        float32 `json:"hanging_time"`
+	Time               float32 `json:"time"`
 }
 
 // Расчет характеристик
@@ -111,15 +115,15 @@ func Calculate(c *gin.Context) {
 	}
 	// Вычисление общей массы БПЛА
 	AssemblyMass := service.GetAssemblyMass(req.FrameMass, AP.BattMass, uint64(ContTolalMass), uint64(req.EquipMass), uint64(req.MotorMass*uint(req.AxisNumber)), uint64(req.PropMass*float32(req.AxisNumber)))
-	const G float32 = 9.8
+
 	// Общий вес БПЛА в Ньютонах, за исключением массы аккумулятора
-	AssemblyWeight := float32(AssemblyMass-AP.BattMass) * G
+	AssemblyWeight := service.GetAssemblyWeight(AssemblyMass, AP.BattMass)
 
 	// Вычисление характеристик мотора
 	MP := service.GetMotorFeatures(req.MotorPeakCurrent, AP.BattMaxVoltage)
 
 	// Вычисление полетных характеристик
-	FP := service.GetFlightFeatures(AssemblyWeight, req.PropPowerConst, req.PropTractionConst, EnvAirPressure, req.PropDiameter, AP.BattEnergyReserve)
+	FP := service.GetFlightFeatures(AssemblyWeight, req.PropPowerConst, req.PropTractionConst, EnvAirPressure, req.PropDiameter, AP.BattEnergyReserve, req.MotorMaxPower)
 
 	// Возвращаем вычисленные значения
 	CalculateResponse := CalculateResponse{
@@ -139,10 +143,7 @@ func Calculate(c *gin.Context) {
 		BattEnergyReserve:     AP.BattEnergyReserve,
 		MotElectricPower:      MP.MotElectricPower,
 		MotMechanicalPower:    MP.MotMechanicalPower,
-		PropMinFreq:           FP.PropMinFreq,
-		PropMinPower:          FP.PropMinPower,
-		UsefulPowerOfPlant:    FP.UsefulPowerOfPlant,
-		HangingTime:           FP.HangingTime,
+		Minimal:               Mode(FP.Minimal),
 	}
 
 	c.JSON(200, &CalculateResponse)
