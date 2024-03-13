@@ -60,13 +60,13 @@ func ValidateRefreshToken(tokenString string) (*Claims, error) {
 
 	// Проверка валидности токена
 	if !token.Valid {
-		return nil, errors.New("Невалидный токен!")
+		return nil, errors.New("token is not valid")
 	}
 
 	// Получение пользовательских данных из токена
 	claims, ok := token.Claims.(*Claims)
 	if !ok {
-		return nil, errors.New("Ошибка извлечения пользовательских данных!")
+		return nil, errors.New("error of getting user data from token")
 	}
 
 	return claims, nil
@@ -83,13 +83,13 @@ func ValidateAccessToken(tokenString string) (*Claims, error) {
 
 	// Проверка валидности токена
 	if !token.Valid {
-		return nil, errors.New("Невалидный токен!")
+		return nil, errors.New("token is not valid")
 	}
 
 	// Получение пользовательских данных из токена
 	claims, ok := token.Claims.(*Claims)
 	if !ok {
-		return nil, errors.New("Ошибка извлечения пользовательских данных!")
+		return nil, errors.New("error of getting user data from token")
 	}
 
 	return claims, nil
