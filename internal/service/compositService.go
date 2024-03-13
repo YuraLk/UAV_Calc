@@ -4,7 +4,6 @@ import (
 	"github.com/YuraLk/teca_server/internal/database/postgres"
 	"github.com/YuraLk/teca_server/internal/exeptions"
 	"github.com/YuraLk/teca_server/internal/models"
-	"github.com/YuraLk/teca_server/internal/types"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,19 +19,19 @@ func GetComposits(c *gin.Context) []models.Composit {
 	return composits
 }
 
-func CreateComposit(c *gin.Context, Name string, Voltage types.Voltage, CRating types.Current, SafeCapacity float32) (models.Composit, error) {
+func CreateComposit(c *gin.Context, Name string) (models.Composit, error) {
 	composit := models.Composit{
 		Name: Name,
-		Voltage: types.JSONB{
-			"min": Voltage.Min,
-			"nom": Voltage.Nom,
-			"max": Voltage.Max,
-		},
-		CRating: types.JSONB{
-			"per": CRating.Per,
-			"max": CRating.Max,
-		},
-		SafeCapacity: SafeCapacity,
+		// Voltage: types.JSONB{
+		// 	"min": Voltage.Min,
+		// 	"nom": Voltage.Nom,
+		// 	"max": Voltage.Max,
+		// },
+		// CRating: types.JSONB{
+		// 	"per": CRating.Per,
+		// 	"max": CRating.Max,
+		// },
+		// SafeCapacity: SafeCapacity,
 	}
 
 	// Регистрируем пользователя
@@ -44,7 +43,7 @@ func CreateComposit(c *gin.Context, Name string, Voltage types.Voltage, CRating 
 	return composit, nil
 }
 
-func UpdateComposit(c *gin.Context, Id uint, Name string, Voltage types.Voltage, CRating types.Current, SafeCapacity float32) (models.Composit, error) {
+func UpdateComposit(c *gin.Context, Id uint, Name string) (models.Composit, error) {
 	var composit models.Composit
 	if err := postgres.DB.Where("id = ?", Id).First(&composit).Error; err != nil {
 		exeptions.NotFound(c, "Запись не найдена!")
@@ -54,16 +53,16 @@ func UpdateComposit(c *gin.Context, Id uint, Name string, Voltage types.Voltage,
 	updateComposit := models.Composit{
 		Id:   composit.Id,
 		Name: Name,
-		Voltage: types.JSONB{
-			"min": Voltage.Min,
-			"nom": Voltage.Nom,
-			"max": Voltage.Max,
-		},
-		CRating: types.JSONB{
-			"per": CRating.Per,
-			"max": CRating.Max,
-		},
-		SafeCapacity: SafeCapacity,
+		// Voltage: types.JSONB{
+		// 	"min": Voltage.Min,
+		// 	"nom": Voltage.Nom,
+		// 	"max": Voltage.Max,
+		// },
+		// CRating: types.JSONB{
+		// 	"per": CRating.Per,
+		// 	"max": CRating.Max,
+		// },
+		// SafeCapacity: SafeCapacity,
 	}
 
 	if err := postgres.DB.Save(&updateComposit).Error; err != nil {

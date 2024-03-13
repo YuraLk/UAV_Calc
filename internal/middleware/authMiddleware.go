@@ -14,7 +14,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		authorizationHeader := c.GetHeader("Authorization")
 
 		if authorizationHeader == "" {
-			exeptions.UnauthorizedError(c, errors.New("header value not found"))
+			exeptions.UnauthorizedError(c, errors.New("Header value not found"))
 			return
 		}
 

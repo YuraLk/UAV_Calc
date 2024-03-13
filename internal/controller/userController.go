@@ -7,31 +7,12 @@ import (
 	"github.com/YuraLk/teca_server/internal/config"
 	"github.com/YuraLk/teca_server/internal/dtos"
 	"github.com/YuraLk/teca_server/internal/exeptions"
+	"github.com/YuraLk/teca_server/internal/requests"
 	"github.com/YuraLk/teca_server/internal/service"
 	"github.com/YuraLk/teca_server/internal/utils"
+
 	"github.com/gin-gonic/gin"
 )
-
-type RegisterRequest struct {
-	Name     string `json:"name" binding:"required,fullName"`
-	Email    string `json:"email" binding:"required,email"`
-	Phone    string `json:"phone" binding:"required"`
-	Password string `json:"password" binding:"required,min=10,max=40,safety"`
-	Device   string `json:"device" binding:"required"`
-}
-
-type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
-	Device   string `json:"device" binding:"required"`
-}
-
-type UpdateUserRequest struct {
-	Name   string `json:"name" binding:"required,fullName"`
-	Email  string `json:"email" binding:"required,email"`
-	Phone  string `json:"phone" binding:"required"`
-	Device string `json:"device" binding:"required"`
-}
 
 func GetUsers(c *gin.Context) {
 	users := service.GetUsers(c)
@@ -39,7 +20,7 @@ func GetUsers(c *gin.Context) {
 }
 
 func Auth(c *gin.Context) {
-	var req LoginRequest
+	var req requests.Login
 
 	// Проверка валидации
 	if err := c.ShouldBind(&req); err != nil {
@@ -63,7 +44,7 @@ func Auth(c *gin.Context) {
 
 // Функция регистрации
 func Register(c *gin.Context) {
-	var req RegisterRequest
+	var req requests.Register
 
 	// Проверка валидации
 	if err := c.ShouldBind(&req); err != nil {
@@ -105,7 +86,7 @@ func Refresh(c *gin.Context) {
 }
 
 func UpdateUser(c *gin.Context) {
-	var req UpdateUserRequest
+	var req requests.UpdateUser
 
 	// Проверка валидации
 	if err := c.ShouldBind(&req); err != nil {

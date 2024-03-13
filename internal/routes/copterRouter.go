@@ -6,9 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CalculationRouter(router *gin.RouterGroup) {
+func CopterRouter(router *gin.RouterGroup) {
 
-	group := router.Group("/calculation")
+	group := router.Group("/copter")
 
-	group.POST("/", middleware.AuthMiddleware(), controller.Calculate)
+	group.POST("/", middleware.AuthMiddleware(), controller.CalculateCopterProperties)
 }

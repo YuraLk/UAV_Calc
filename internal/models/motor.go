@@ -1,19 +1,24 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"github.com/YuraLk/teca_server/internal/types"
+	"gorm.io/gorm"
+)
 
 type Motor struct {
 	gorm.Model
-	Id         uint    `json:"ID" gorm:"primary_key"`
-	Kv         uint8   `json:"kv" gorm:"not null"`
-	Current    uint8   `json:"current" gorm:"not null"`
-	Voltage    float32 `json:"voltage" gorm:"not null"`
-	Power      uint32  `json:"power" gorm:"not null"`
-	Resistance float32 `json:"resistance" gorm:"not null"`
-	Length     float32 `json:"length" gorm:"not null"`
-	Diameter   float32 `json:"diameter" gorm:"not null"`
-	Magnets    uint8   `json:"magnets" gorm:"not null"`
-	Weight     uint32  `json:"weight" gorm:"not null"`
-	ModelID    uint    `json:"modelID" gorm:"not null"`
-	Assembly   Assembly
+	Id                         uint        `json:"ID" gorm:"primary_key"`
+	KvConst                    uint8       `json:"kvConst" gorm:"type:uint;not null"`            // Констаннта количества оборотов в минуту, которые мотор может развить на вольт поданного напряжения без нагрузки
+	WindingResistance          float32     `json:"windingResistance" gorm:"type:float;not null"` // Сопротивление обмоток двигателя (Ом)
+	MagnetsNumber              uint8       `json:"magnetsNumber" gorm:"type:uint;not null"`      // Количество магнитов
+	Mass                       float32     `json:"mass" gorm:"type:float;not null"`              // Масса двигателя (Кг)
+	Current                    types.JSONB `json:"current" gorm:"type:jsonb;not null"`
+	TorqueProportionalityConst float32     `json:"torqueProportionalityConst" gorm:"type:float;not null"` // Константа пропорциональности крутящего момента двигателя
+	Voltage                    float32     `json:"voltage" gorm:"type:float;not null"`                    // Номинальное напряжение двигателя. Конечные цифры напряжения зависят от типа аккумлятора.
+	Efficiency                 float32     `json:"efficiency" gorm:"type:float;not null"`                 // КПД электродвигателя
+	MomentInertia              float32     `json:"momentInertia" gorm:"type:float;not null"`              // Момент инерции двигателя, (Кг/м^2)
+	ElectricInductance         float32     `json:"electricInductance" gorm:"type:float;not null"`         // Электрическая индуктивность, (Генри)
+	MaxPower                   uint        `json:"maxPower" gorm:"type:uint;not null"`                    // Максимальная мощность
+	ModelID                    uint        `json:"modelID" gorm:"not null"`
+	Assembly                   Assembly
 }
