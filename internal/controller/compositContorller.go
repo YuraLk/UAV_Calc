@@ -9,8 +9,10 @@ import (
 )
 
 func GetComposits(c *gin.Context) {
-	composits := service.GetComposits(c)
-	c.JSON(200, &composits)
+	composits, err := service.GetComposits(c)
+	if err == nil {
+		c.JSON(200, &composits)
+	}
 }
 
 func CreateComposit(c *gin.Context) {

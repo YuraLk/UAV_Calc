@@ -7,16 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetComposits(c *gin.Context) []models.Composit {
+func GetComposits(c *gin.Context) ([]models.Composit, error) {
 	composits := []models.Composit{}
 	if err := postgres.DB.Find(&composits).Error; err != nil {
 		exeptions.InternalServerError(c, err)
-		return []models.Composit{}
+		return []models.Composit{}, err
 	}
-	// fmt.Println(composits)
-	// Преобразовывем в JSON - формат
 
-	return composits
+	return composits, nil
 }
 
 func CreateComposit(c *gin.Context, Name string) (models.Composit, error) {
