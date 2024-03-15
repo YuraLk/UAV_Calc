@@ -24,7 +24,7 @@ func Auth(c *gin.Context) {
 
 	// Проверка валидации
 	if err := c.ShouldBind(&req); err != nil {
-		errors := utils.FormatErrors(err.Error())
+		errors := utils.FormatJSONErrors(err.Error())
 		exeptions.UnprocessableEntity(c, errors)
 		return
 	}
@@ -48,7 +48,7 @@ func Register(c *gin.Context) {
 
 	// Проверка валидации
 	if err := c.ShouldBind(&req); err != nil {
-		errors := utils.FormatErrors(err.Error())
+		errors := utils.FormatJSONErrors(err.Error())
 		exeptions.UnprocessableEntity(c, errors)
 		return
 	}
@@ -90,7 +90,7 @@ func UpdateUser(c *gin.Context) {
 
 	// Проверка валидации
 	if err := c.ShouldBind(&req); err != nil {
-		errors := utils.FormatErrors(err.Error())
+		errors := utils.FormatJSONErrors(err.Error())
 		exeptions.UnprocessableEntity(c, errors)
 		return
 	}

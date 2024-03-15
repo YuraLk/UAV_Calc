@@ -3,16 +3,11 @@ package utils
 import (
 	"regexp"
 	"strings"
+
+	"github.com/YuraLk/teca_server/internal/types"
 )
 
-type ValidationError struct {
-	Key   string
-	Field string
-	Error string
-	Tag   string
-}
-
-func FormatErrors(input string) []ValidationError {
+func FormatJSONErrors(input string) []types.ValidationError {
 	// Регулярное выражение для извлечения значений
 	re := regexp.MustCompile(`Key: '(?P<Key>[^']+)' Error:Field validation for '(?P<Field>[^']+)' failed on the '(?P<Tag>[^']+)' tag`)
 
@@ -20,13 +15,13 @@ func FormatErrors(input string) []ValidationError {
 	lines := strings.Split(input, "\n")
 
 	// Создаем массив для объектов ValidationError
-	var errors []ValidationError
+	var errors []types.ValidationError
 
 	// Обрабатываем каждую строку
 	for _, line := range lines {
 		match := re.FindStringSubmatch(line)
 		if match != nil {
-			errorObj := ValidationError{
+			errorObj := types.ValidationError{
 				Key:   match[1],
 				Field: match[2],
 				Tag:   match[3],

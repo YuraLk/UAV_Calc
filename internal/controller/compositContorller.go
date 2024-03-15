@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/YuraLk/teca_server/internal/exeptions"
-	"github.com/YuraLk/teca_server/internal/requests"
 	"github.com/YuraLk/teca_server/internal/service"
+	"github.com/YuraLk/teca_server/internal/types"
 	"github.com/YuraLk/teca_server/internal/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -16,36 +16,70 @@ func GetComposits(c *gin.Context) {
 }
 
 func CreateComposit(c *gin.Context) {
-	var req requests.CreateComposit
-	// Проверка валидации
-	if err := c.ShouldBind(&req); err != nil {
-		errors := utils.FormatErrors(err.Error())
+	// Название композита
+	name := c.PostForm("name")
+	// Таблица с ВАХ аккумулятора
+	file, err := c.FormFile("file")
+
+	// Проверка валидности данных из FormData
+	var errors = utils.BindFormData("Composit", []types.BindingScruct{
+		{
+			Key:   "Name",
+			Value: name,
+			Error: nil,
+		},
+		{
+			Key:   "File",
+			Value: file,
+			Error: err,
+		},
+	})
+
+	if len(errors) > 0 {
 		exeptions.UnprocessableEntity(c, errors)
 		return
 	}
 
-	// Извлекаем данные из тела application/json
-	c.ShouldBindJSON(&req)
-
-	Composit, err := service.CreateComposit(c, req.Name)
+	// Передаем проверенные данные в сервис
+	Composit, err := service.CreateComposit(c, name, file)
 	if err == nil {
 		c.JSON(200, &Composit)
 	}
 }
 
 func UpdateComposit(c *gin.Context) {
-	var req requests.UpdateComposit
-	// Проверка валидации
-	if err := c.ShouldBind(&req); err != nil {
-		errors := utils.FormatErrors(err.Error())
+	id := c.PostForm("id")
+	name := c.PostForm("name")
+	// Таблица с ВАХ аккумулятора
+	file, err := c.FormFile("file")
+
+	// Проверка валидности данных из FormData
+	var errors = utils.BindFormData("Composit", []types.BindingScruct{
+		{
+			Key:   "Id",
+			Value: id,
+			Error: nil,
+		},
+		{
+			Key:   "Name",
+			Value: name,
+			Error: nil,
+		},
+		{
+			Key:   "File",
+			Value: file,
+			Error: err,
+		},
+	})
+
+	if len(errors) > 0 {
 		exeptions.UnprocessableEntity(c, errors)
 		return
 	}
 
-	// Извлекаем данные из тела application/json
-	c.ShouldBindJSON(&req)
+	// Передаем проверенные данные в сервис
 
-	Composit, err := service.UpdateComposit(c, req.Id, req.Name)
+	Composit, err := service.UpdateComposit(c, id, name, file)
 	if err == nil {
 		c.JSON(200, &Composit)
 	}

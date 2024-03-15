@@ -3,7 +3,7 @@ package exeptions
 import (
 	"net/http"
 
-	"github.com/YuraLk/teca_server/internal/utils"
+	"github.com/YuraLk/teca_server/internal/types"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +21,7 @@ func InternalServerError(c *gin.Context, err error) {
 	return
 }
 
-func UnprocessableEntity(c *gin.Context, errors []utils.ValidationError) {
+func UnprocessableEntity(c *gin.Context, errors []types.ValidationError) {
 	response := Error{
 		Error:   "Ошибка валидации!",
 		Details: errors,
