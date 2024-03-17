@@ -1,6 +1,6 @@
 package types
 
-type BindingScruct struct {
+type Binding struct {
 	Key   string
 	Value interface{}
 	Error error

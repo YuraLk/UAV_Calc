@@ -2,7 +2,7 @@ package utils
 
 import "github.com/YuraLk/teca_server/internal/types"
 
-var BindFormData = func(area string, args []types.BindingScruct) []types.ValidationError {
+var BindFormData = func(area string, args []types.Binding) []types.ValidationError {
 	// Создаем массив для объектов ValidationError
 	var errors []types.ValidationError
 

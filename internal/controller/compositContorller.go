@@ -22,7 +22,7 @@ func CreateComposit(c *gin.Context) {
 	file, err := c.FormFile("file")
 
 	// Проверка валидности данных из FormData
-	var errors = utils.BindFormData("Composit", []types.BindingScruct{
+	var errors = utils.BindFormData("Composit", []types.Binding{
 		{
 			Key:   "Name",
 			Value: name,
@@ -54,7 +54,7 @@ func UpdateComposit(c *gin.Context) {
 	file, err := c.FormFile("file")
 
 	// Проверка валидности данных из FormData
-	var errors = utils.BindFormData("Composit", []types.BindingScruct{
+	var errors = utils.BindFormData("Composit", []types.Binding{
 		{
 			Key:   "Id",
 			Value: id,
