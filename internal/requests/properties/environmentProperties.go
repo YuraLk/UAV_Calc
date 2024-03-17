@@ -1,9 +1,9 @@
 package properties
 
 type EnvironmentProperties struct {
-	AltitudeRange  AltitudeRange `json:"altitudeRange" binding:"required"`           // Диапазон высот полета ЛА
-	AirTemperature float64       `json:"airTemperature" binding:"required"`          // Температура воздуха на высоте запуска ЛА, (K)
-	AirHumidity    float64       `json:"airHumidity" binding:"required,min=0,max=1"` // Влажность воздуха
+	AltitudeRange  AltitudeRange `json:"altitudeRange" binding:"required"`  // Диапазон высот полета ЛА
+	AirTemperature float64       `json:"airTemperature" binding:"required"` // Температура воздуха на высоте запуска ЛА, (K)
+	AirHumidity    float64       `json:"airHumidity" binding:"gte=0,lte=1"` // Влажность воздуха
 }
 
 type AltitudeRange struct {

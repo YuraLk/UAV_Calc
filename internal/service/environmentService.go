@@ -21,13 +21,14 @@ func getVerticalTemperatureGradient(AirHumidity float64, AirTemperature float64)
 	}
 }
 
-func getAirDensity(AirHumidity float64, AirTemperature float64, AbsolutePressure float64, PartialPressureOfWaterVapor float64) float64 {
-	var DryAirDensity float64 = AbsolutePressure / (consts.SpecificGasConstForDryAir * AirTemperature)
+func getAirDensity(AirHumidity float64, AirTemperature float64, Pressure float64, PartialPressureOfWaterVapor float64) float64 {
 	switch AirHumidity {
 	case 0: // Если воздух сухой
+		DryAirDensity := Pressure / (consts.SpecificGasConstForDryAir * AirTemperature)
 		return DryAirDensity
 	default: // Если воздух влажный
-		DensityOfHumidAir := (DryAirDensity/(consts.SpecificGasConstForDryAir*AirTemperature) + (PartialPressureOfWaterVapor / (consts.SpecificGasConstForWaterVapor * AirTemperature)))
+		DryAirPressure := Pressure - PartialPressureOfWaterVapor // Давление сухого воздуха
+		DensityOfHumidAir := (DryAirPressure/(consts.SpecificGasConstForDryAir*AirTemperature) + (PartialPressureOfWaterVapor / (consts.SpecificGasConstForWaterVapor * AirTemperature)))
 		return DensityOfHumidAir
 	}
 }
@@ -40,8 +41,8 @@ func GetEnvironmentProperties(obj requests.EnvironmentProperties) (responses.Env
 	// Высота взлета летательного аппарата относительно оператора, (М)
 	var LocalAltitude float64 = obj.AltitudeRange.Flight - obj.AltitudeRange.Start
 
-	// Абсолютное давление на высоте полета летательного аппарата, (Па)
-	var AbsolutePressure float64 = consts.SeaLevelPressure * math.Pow((float64(1-((consts.TemperatureLaps*obj.AltitudeRange.Flight)/consts.SeaLevelStandardTemperature))), ((consts.G*consts.M)/consts.UniversalGasConstant*consts.AtmosphericTemperatureGradient))
+	// Давление на высоте полета летательного аппарата, (Па)
+	var Pressure float64 = consts.SeaLevelPressure * math.Pow((float64(1-((consts.TemperatureLaps*obj.AltitudeRange.Flight)/consts.SeaLevelStandardTemperature))), ((consts.G*consts.M)/consts.UniversalGasConstant*consts.AtmosphericTemperatureGradient))
 
 	// Вертикальный температурный градиент, (K/км)
 	var VerticalTemperatureGradient float64 = getVerticalTemperatureGradient(obj.AirHumidity, obj.AirTemperature)
@@ -56,9 +57,9 @@ func GetEnvironmentProperties(obj requests.EnvironmentProperties) (responses.Env
 	var PartialPressureOfWaterVapor float64 = obj.AirHumidity * SaturationPressureAtCertainTemperature
 
 	// Плотность воздуха, (Кг/М^3)
-	var AirDensity float64 = getAirDensity(obj.AirHumidity, obj.AirTemperature, AbsolutePressure, PartialPressureOfWaterVapor)
+	var AirDensity float64 = getAirDensity(obj.AirHumidity, obj.AirTemperature, Pressure, PartialPressureOfWaterVapor)
 
-	fmt.Println(AbsolutePressure)
+	fmt.Println(PartialPressureOfWaterVapor)
 
 	// Возвращаем расчитанные параметры
 	properties := responses.EnvironmentProperties{
