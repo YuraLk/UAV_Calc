@@ -1,4 +1,4 @@
-package properties
+package requests_properties
 
 type PropellerProperties struct {
 	Diameter                    float32 `json:"diameter" binding:"required,gt=0"`                    // Диаметр пропеллера, (М)

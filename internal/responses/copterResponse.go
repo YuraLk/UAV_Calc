@@ -1,7 +1,7 @@
 package responses
 
 import (
-	responseProperties "github.com/YuraLk/teca_server/internal/responses/properties"
+	responses_properties "github.com/YuraLk/teca_server/internal/responses/properties"
 	"github.com/YuraLk/teca_server/internal/types"
 )
 
@@ -12,6 +12,7 @@ type CopterResponse struct {
 }
 
 type CopterProperties struct {
-	EnvironmentProperties responseProperties.EnvironmentProperties `json:"environmentProperties"`
-	BatteryProperties     responseProperties.BatteryProperties     `json:"batteryProperties"`
+	EnvironmentProperties responses_properties.EnvironmentProperties `json:"environmentProperties"`
+	BatteryProperties     responses_properties.BatteryProperties     `json:"batteryProperties"`
+	PropellerProperties   responses_properties.PropellerProperties   `json:"propellerProperties"`
 }

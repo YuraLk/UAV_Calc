@@ -1,4 +1,4 @@
-package properties
+package requests_properties
 
 type BatteryProperties struct {
 	CellCapacity         float32 `json:"cellCapacity" binding:"required,gt=0"`          // Емкость банки, (Ампер * Час)

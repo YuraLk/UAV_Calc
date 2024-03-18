@@ -6,18 +6,17 @@ import (
 	"github.com/YuraLk/teca_server/internal/database/postgres"
 	"github.com/YuraLk/teca_server/internal/exeptions"
 	"github.com/YuraLk/teca_server/internal/models"
-	requests "github.com/YuraLk/teca_server/internal/requests"
-	responses "github.com/YuraLk/teca_server/internal/responses"
-	"github.com/YuraLk/teca_server/internal/types"
+	requests_properties "github.com/YuraLk/teca_server/internal/requests"
+	responses_properties "github.com/YuraLk/teca_server/internal/responses"
 	"github.com/gin-gonic/gin"
 )
 
-func CalculateCopterProperties(c *gin.Context, req requests.CalculateCopter) (responses.CopterResponse, error) {
+func CalculateCopterProperties(c *gin.Context, req requests_properties.CalculateCopter) (responses_properties.CopterResponse, error) {
 
 	// Навесное оборудование
 	// var attachments = req.AttachmentsProperties
 	// ESC
-	// var esc = req.ControllerProperties
+	var esc = req.ControllerProperties
 	// Внешняя среда
 	var environment = req.EnvironmentProperties
 	// Мотор
@@ -25,7 +24,7 @@ func CalculateCopterProperties(c *gin.Context, req requests.CalculateCopter) (re
 	// Рама
 	// var frame = req.FrameProperties
 	// Пропеллер
-	// var propeller = req.PropellerProperties
+	var propeller = req.PropellerProperties
 	// Аккумулятор
 	var battery = req.BatteryProperties
 
@@ -33,38 +32,33 @@ func CalculateCopterProperties(c *gin.Context, req requests.CalculateCopter) (re
 	var composit models.Composit
 	if err := postgres.DB.Where("id = ?", battery.CompositId).First(&composit).Error; err != nil {
 		exeptions.InternalServerError(c, err)
-		return responses.CopterResponse{}, err
+		return responses_properties.CopterResponse{}, err
 	}
-
-	// DEBUG
-	// fmt.Println(attachments)
-	// fmt.Println(esc)
-	// fmt.Println(environment)
-	// fmt.Println(motor)
-	// fmt.Println(frame)
-	// fmt.Println(propeller)
-	// fmt.Println(battery)
-	// fmt.Println(composit)
-
-	// Помещаем получаемые предупреждения в один массив
-	var warnings []types.Warning
 
 	// Вычисляем параметры окружающей среды
 	envProps, envWarn := GetEnvironmentProperties(environment)
-	if envWarn != nil {
-		warnings = append(warnings, *envWarn...)
-	}
 
-	battProps, battWarn := GetBatteryProperties(battery, composit)
-	if battWarn != nil {
-		warnings = append(warnings, *battWarn...)
+	// Вычисляем параметры батареи
+	battProps, err := GetBatteryProperties(battery, composit)
+	if err != nil {
+		exeptions.InternalServerError(c, err)
+		return responses_properties.CopterResponse{}, err
 	}
+	// Вычисляем параметры ESC
+	escWarn := GetControllerProperties(esc, battProps.BatteryVoltage)
+
+	// Вычисляем параметры пропеллера
+	propProps, propWarn := GetPropellerProperties(propeller)
+
+	// Собираем предупреждения
+	warnings := AppendWarningsArrays(envWarn, escWarn, propWarn)
 
 	// Возвращаем расчитанные параметры
-	var response responses.CopterResponse = responses.CopterResponse{
-		CopterProperties: responses.CopterProperties{
+	var response responses_properties.CopterResponse = responses_properties.CopterResponse{
+		CopterProperties: responses_properties.CopterProperties{
 			EnvironmentProperties: envProps,
 			BatteryProperties:     battProps,
+			PropellerProperties:   propProps,
 		},
 		Warings: warnings,
 	}

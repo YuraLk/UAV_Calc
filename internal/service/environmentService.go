@@ -4,8 +4,8 @@ import (
 	"math"
 
 	"github.com/YuraLk/teca_server/internal/consts"
-	requests "github.com/YuraLk/teca_server/internal/requests/properties"
-	responses "github.com/YuraLk/teca_server/internal/responses/properties"
+	requests_properties "github.com/YuraLk/teca_server/internal/requests/properties"
+	responses_properties "github.com/YuraLk/teca_server/internal/responses/properties"
 	"github.com/YuraLk/teca_server/internal/types"
 )
 
@@ -32,7 +32,7 @@ func getAirDensity(AirHumidity float64, AirTemperature float64, Pressure float64
 	}
 }
 
-func GetEnvironmentProperties(obj requests.EnvironmentProperties) (responses.EnvironmentProperties, *[]types.Warning) {
+func GetEnvironmentProperties(obj requests_properties.EnvironmentProperties) (responses_properties.EnvironmentProperties, *[]types.Warning) {
 
 	// Проверка на допустимую влажность воздуха
 	airHumidityWarning := EnvironmentAirHumidityCheck(obj.AirHumidity)
@@ -59,14 +59,11 @@ func GetEnvironmentProperties(obj requests.EnvironmentProperties) (responses.Env
 	var AirDensity float64 = getAirDensity(obj.AirHumidity, obj.AirTemperature, Pressure, PartialPressureOfWaterVapor)
 
 	// Возвращаем расчитанные параметры
-	properties := responses.EnvironmentProperties{
+	properties := responses_properties.EnvironmentProperties{
 		AirDensity: AirDensity,
 	}
 
-	if airHumidityWarning != nil {
-		// Помещаем полученные предупреждения в один массив
-		return properties, &[]types.Warning{*airHumidityWarning}
-	}
+	warnings := AppendWarnings(airHumidityWarning)
 
-	return properties, nil
+	return properties, warnings
 }

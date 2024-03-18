@@ -1,4 +1,4 @@
-package properties
+package requests_properties
 
 type MotorProperties struct {
 	KvConst            uint     `json:"kvConst" binding:"required,gt=0"`            // Констаннта количества оборотов в минуту, которые мотор может развить на вольт поданного напряжения без нагрузки
