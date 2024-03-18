@@ -1,7 +1,7 @@
 package responses
 
 import (
-	responses_properties "github.com/YuraLk/teca_server/internal/dtos/responses/properties"
+	responses_properties "github.com/YuraLk/teca_server/internal/dtos/responses/responses_properties"
 	"github.com/YuraLk/teca_server/internal/types"
 )
 

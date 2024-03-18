@@ -4,8 +4,8 @@ import (
 	"math"
 
 	"github.com/YuraLk/teca_server/internal/consts"
-	requests_properties "github.com/YuraLk/teca_server/internal/dtos/requests/properties"
-	responses_properties "github.com/YuraLk/teca_server/internal/dtos/responses/properties"
+	requests_properties "github.com/YuraLk/teca_server/internal/dtos/requests/requests_properties"
+	responses_properties "github.com/YuraLk/teca_server/internal/dtos/responses/responses_properties"
 	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
 	"github.com/YuraLk/teca_server/internal/types"
 )
