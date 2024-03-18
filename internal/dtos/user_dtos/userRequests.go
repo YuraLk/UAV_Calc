@@ -1,4 +1,4 @@
-package requests
+package user_dtos
 
 type Login struct {
 	Email    string `json:"email" binding:"required,email"`

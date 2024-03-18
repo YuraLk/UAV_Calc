@@ -1,4 +1,4 @@
-package requests_properties
+package properties
 
 type FrameProperties struct {
 	Mass                float32 `json:"mass" binding:"required,gt=0"`                        // Масса рамы, (Кг)

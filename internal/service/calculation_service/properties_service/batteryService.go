@@ -3,8 +3,8 @@ package properties_service
 import (
 	"encoding/json"
 
-	requests_properties "github.com/YuraLk/teca_server/internal/dtos/requests/requests_properties"
-	responses_properties "github.com/YuraLk/teca_server/internal/dtos/responses/responses_properties"
+	request_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request/properties"
+	response_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response/properties"
 	"github.com/YuraLk/teca_server/internal/models"
 	"github.com/YuraLk/teca_server/internal/types"
 )
@@ -36,7 +36,7 @@ func getVoltageCharacteristics(CVC []types.BatteryData, CriticalChargeProportion
 	return CVCRange, SmoothedVoltage, VoltageUnderLoad
 }
 
-func GetBatteryProperties(battery requests_properties.BatteryProperties, composit models.Composit) (responses_properties.BatteryProperties, error) {
+func GetBatteryProperties(battery request_properties.BatteryProperties, composit models.Composit) (response_properties.BatteryProperties, error) {
 	// Общая емкость, (А/Ч)
 	var Capacity float32 = battery.CellCapacity * float32(battery.P) * float32(battery.S)
 
@@ -47,7 +47,7 @@ func GetBatteryProperties(battery requests_properties.BatteryProperties, composi
 	var UsableCapacity float32 = Capacity * (battery.InitialStateOfCharge - CriticalChargeProportion)
 
 	// Токоотдача аккумулятора, (А)
-	CurrentOutput := responses_properties.CurrentOutput{
+	CurrentOutput := response_properties.CurrentOutput{
 		Per: float32(battery.CRating.Per) * float32(battery.P) * battery.CellCapacity,
 		Max: float32(battery.CRating.Max) * float32(battery.P) * battery.CellCapacity,
 	}
@@ -60,7 +60,7 @@ func GetBatteryProperties(battery requests_properties.BatteryProperties, composi
 	err := json.Unmarshal([]byte(composit.CVC), &CVC)
 	// В случае ошибки выбрасываем 500 статус
 	if err != nil {
-		return responses_properties.BatteryProperties{}, err
+		return response_properties.BatteryProperties{}, err
 	}
 
 	// По ВАХ аккумулятора ищем напряжения
@@ -78,7 +78,7 @@ func GetBatteryProperties(battery requests_properties.BatteryProperties, composi
 	// Используемая мощность аккумулятора, (Вт * Час)
 	var BatteryUsablePower float64 = float64(UsableCapacity) * BatteryVoltage
 
-	return responses_properties.BatteryProperties{
+	return response_properties.BatteryProperties{
 		CurrentOutput:           CurrentOutput,
 		Capacity:                Capacity,
 		UsableCapacity:          UsableCapacity,

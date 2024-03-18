@@ -2,8 +2,8 @@ package properties_service
 
 import (
 	"github.com/YuraLk/teca_server/internal/consts"
-	"github.com/YuraLk/teca_server/internal/dtos/requests/requests_properties"
-	"github.com/YuraLk/teca_server/internal/dtos/responses/responses_properties"
+	request_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request/properties"
+	response_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response/properties"
 )
 
 func sum(array []float32) float32 {
@@ -14,7 +14,7 @@ func sum(array []float32) float32 {
 	return sum
 }
 
-func GetGeneralProperties(frame requests_properties.FrameProperties, attachments requests_properties.AttachmentsProperties, array ...float32) responses_properties.GeneralProperties {
+func GetGeneralProperties(frame request_properties.FrameProperties, attachments request_properties.AttachmentsProperties, array ...float32) response_properties.GeneralProperties {
 
 	// Общая масса сборки, (Кг)
 	Mass := sum(array) + frame.Mass + attachments.Mass
@@ -25,7 +25,7 @@ func GetGeneralProperties(frame requests_properties.FrameProperties, attachments
 	// Общий вес сборки, (Н)
 	Weight := Mass * consts.G
 
-	return responses_properties.GeneralProperties{
+	return response_properties.GeneralProperties{
 		Mass:    Mass,
 		Weight:  Weight,
 		PMGMass: PMGMass,

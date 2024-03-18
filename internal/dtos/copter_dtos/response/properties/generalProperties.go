@@ -1,4 +1,4 @@
-package responses_properties
+package properties
 
 type GeneralProperties struct {
 	Mass    float32 `json:"mass"`

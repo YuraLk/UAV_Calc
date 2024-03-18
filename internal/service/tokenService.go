@@ -6,7 +6,7 @@ import (
 
 	"github.com/YuraLk/teca_server/internal/config"
 	"github.com/YuraLk/teca_server/internal/database/postgres"
-	"github.com/YuraLk/teca_server/internal/dtos"
+	"github.com/YuraLk/teca_server/internal/dtos/user_dtos"
 	"github.com/YuraLk/teca_server/internal/models"
 	"github.com/dgrijalva/jwt-go"
 	"gorm.io/gorm"
@@ -14,11 +14,11 @@ import (
 
 type Claims struct {
 	// Объединение типов в одном
-	dtos.UserDTO
+	user_dtos.UserDTO
 	jwt.StandardClaims
 }
 
-func GenerateTokens(dto dtos.UserDTO) (string, string, error) {
+func GenerateTokens(dto user_dtos.UserDTO) (string, string, error) {
 	// fmt.Print(data)
 	accessClaims := Claims{
 		UserDTO: dto,

@@ -5,8 +5,7 @@ import (
 	"time"
 
 	"github.com/YuraLk/teca_server/internal/config"
-	"github.com/YuraLk/teca_server/internal/dtos"
-	"github.com/YuraLk/teca_server/internal/dtos/requests"
+	"github.com/YuraLk/teca_server/internal/dtos/user_dtos"
 	"github.com/YuraLk/teca_server/internal/exeptions"
 	"github.com/YuraLk/teca_server/internal/service"
 	"github.com/YuraLk/teca_server/internal/utils"
@@ -20,7 +19,7 @@ func GetUsers(c *gin.Context) {
 }
 
 func Auth(c *gin.Context) {
-	var req requests.Login
+	var req user_dtos.Login
 
 	// Проверка валидации
 	if err := c.ShouldBind(&req); err != nil {
@@ -44,7 +43,7 @@ func Auth(c *gin.Context) {
 
 // Функция регистрации
 func Register(c *gin.Context) {
-	var req requests.Register
+	var req user_dtos.Register
 
 	// Проверка валидации
 	if err := c.ShouldBind(&req); err != nil {
@@ -86,7 +85,7 @@ func Refresh(c *gin.Context) {
 }
 
 func UpdateUser(c *gin.Context) {
-	var req requests.UpdateUser
+	var req user_dtos.UpdateUser
 
 	// Проверка валидации
 	if err := c.ShouldBind(&req); err != nil {
@@ -103,7 +102,7 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	// Присваиваем декодированным данным из контекста тип DTO
-	data, ok := decodedData.(dtos.UserDTO)
+	data, ok := decodedData.(user_dtos.UserDTO)
 	if !ok {
 		exeptions.InternalServerError(c, errors.New("error type assignment"))
 		return

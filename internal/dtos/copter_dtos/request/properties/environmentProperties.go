@@ -1,4 +1,4 @@
-package requests_properties
+package properties
 
 type EnvironmentProperties struct {
 	AltitudeRange  AltitudeRange `json:"altitudeRange" binding:"required"`  // Диапазон высот полета ЛА

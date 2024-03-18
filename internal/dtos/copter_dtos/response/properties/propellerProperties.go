@@ -1,4 +1,4 @@
-package responses_properties
+package properties
 
 type PropellerProperties struct {
 	SweptArea          float64 `json:"sweptArea"`

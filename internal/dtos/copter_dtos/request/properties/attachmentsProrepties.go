@@ -1,4 +1,4 @@
-package requests_properties
+package properties
 
 type AttachmentsProperties struct {
 	Mass             float32 `json:"mass" binding:"gte=0"`             // Массса навесного оборудования, (Кг)

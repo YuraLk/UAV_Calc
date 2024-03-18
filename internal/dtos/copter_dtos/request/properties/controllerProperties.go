@@ -1,4 +1,4 @@
-package requests_properties
+package properties
 
 type ControllerProperties struct {
 	Mass               float32      `json:"mass" binding:"required,gt=0"`               // Масса контроллера(-ов). Общую масссу вычисляем на клиенте, исходя из выбранного типа (Кг)

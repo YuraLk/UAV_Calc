@@ -4,8 +4,8 @@ import (
 	"math"
 
 	"github.com/YuraLk/teca_server/internal/consts"
-	requests_properties "github.com/YuraLk/teca_server/internal/dtos/requests/requests_properties"
-	responses_properties "github.com/YuraLk/teca_server/internal/dtos/responses/responses_properties"
+	request_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request/properties"
+	response_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response/properties"
 	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
 	"github.com/YuraLk/teca_server/internal/types"
 )
@@ -33,7 +33,7 @@ func getAirDensity(AirHumidity float64, AirTemperature float64, Pressure float64
 	}
 }
 
-func GetEnvironmentProperties(environment requests_properties.EnvironmentProperties) (responses_properties.EnvironmentProperties, *[]types.Warning) {
+func GetEnvironmentProperties(environment request_properties.EnvironmentProperties) (response_properties.EnvironmentProperties, *[]types.Warning) {
 
 	// Проверка на допустимую влажность воздуха
 	airHumidityWarning := warning_service.EnvironmentAirHumidityCheck(environment.AirHumidity)
@@ -60,7 +60,7 @@ func GetEnvironmentProperties(environment requests_properties.EnvironmentPropert
 	var AirDensity float64 = getAirDensity(environment.AirHumidity, environment.AirTemperature, Pressure, PartialPressureOfWaterVapor)
 
 	// Возвращаем расчитанные параметры
-	properties := responses_properties.EnvironmentProperties{
+	properties := response_properties.EnvironmentProperties{
 		AirDensity: AirDensity,
 	}
 

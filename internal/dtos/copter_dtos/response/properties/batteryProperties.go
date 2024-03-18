@@ -1,4 +1,4 @@
-package responses_properties
+package properties
 
 import "github.com/YuraLk/teca_server/internal/types"
 

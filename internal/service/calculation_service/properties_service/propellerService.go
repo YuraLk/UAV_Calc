@@ -4,14 +4,13 @@ import (
 	"math"
 
 	"github.com/YuraLk/teca_server/internal/consts"
-	requests_properties "github.com/YuraLk/teca_server/internal/dtos/requests/requests_properties"
-	responses_properties "github.com/YuraLk/teca_server/internal/dtos/responses/responses_properties"
+	request_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request/properties"
+	response_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response/properties"
 	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
-
 	"github.com/YuraLk/teca_server/internal/types"
 )
 
-func GetPropellerProperties(propeller requests_properties.PropellerProperties, frame requests_properties.FrameProperties) (responses_properties.PropellerProperties, *[]types.Warning) {
+func GetPropellerProperties(propeller request_properties.PropellerProperties, frame request_properties.FrameProperties) (response_properties.PropellerProperties, *[]types.Warning) {
 
 	// Радиус пропеллера, (М)
 	var PropellerRadius float32 = propeller.Diameter / 2
@@ -38,7 +37,7 @@ func GetPropellerProperties(propeller requests_properties.PropellerProperties, f
 	warnings := warning_service.AppendWarnings()
 
 	// Возвращаем расчитанные параметры
-	properties := responses_properties.PropellerProperties{
+	properties := response_properties.PropellerProperties{
 		SweptArea:          SweptArea,
 		Mass:               Mass,
 		RelativePitch:      RelativePitch,
