@@ -3,9 +3,9 @@ package properties_service
 import (
 	"encoding/json"
 
+	requests_properties "github.com/YuraLk/teca_server/internal/dtos/requests/properties"
+	responses_properties "github.com/YuraLk/teca_server/internal/dtos/responses/properties"
 	"github.com/YuraLk/teca_server/internal/models"
-	requests_properties "github.com/YuraLk/teca_server/internal/requests/properties"
-	responses_properties "github.com/YuraLk/teca_server/internal/responses/properties"
 	"github.com/YuraLk/teca_server/internal/types"
 )
 

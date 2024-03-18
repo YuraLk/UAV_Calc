@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"github.com/YuraLk/teca_server/internal/dtos/requests"
 	"github.com/YuraLk/teca_server/internal/exeptions"
-	"github.com/YuraLk/teca_server/internal/requests"
 	copter_service "github.com/YuraLk/teca_server/internal/service/calculation_service/copter_service"
 	"github.com/YuraLk/teca_server/internal/utils"
 	"github.com/gin-gonic/gin"

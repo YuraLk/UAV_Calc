@@ -1,6 +1,6 @@
 package requests
 
-import requests_properties "github.com/YuraLk/teca_server/internal/requests/properties"
+import requests_properties "github.com/YuraLk/teca_server/internal/dtos/requests/properties"
 
 type CalculateCopter struct {
 	AttachmentsProperties requests_properties.AttachmentsProperties `json:"attachmentsProperties" binding:"required"` // Навесное оборудование

@@ -1,7 +1,7 @@
 package properties_service
 
 import (
-	requests_properties "github.com/YuraLk/teca_server/internal/requests/properties"
+	requests_properties "github.com/YuraLk/teca_server/internal/dtos/requests/properties"
 	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
 
 	"github.com/YuraLk/teca_server/internal/types"

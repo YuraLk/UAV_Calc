@@ -4,17 +4,17 @@ import (
 	// "fmt"
 
 	"github.com/YuraLk/teca_server/internal/database/postgres"
+	"github.com/YuraLk/teca_server/internal/dtos/requests"
+	"github.com/YuraLk/teca_server/internal/dtos/responses"
 	"github.com/YuraLk/teca_server/internal/exeptions"
 	"github.com/YuraLk/teca_server/internal/models"
-	requests_properties "github.com/YuraLk/teca_server/internal/requests"
-	responses_properties "github.com/YuraLk/teca_server/internal/responses"
 	"github.com/YuraLk/teca_server/internal/service/calculation_service/properties_service"
 	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
 
 	"github.com/gin-gonic/gin"
 )
 
-func CalculateCopterProperties(c *gin.Context, req requests_properties.CalculateCopter) (responses_properties.CopterResponse, error) {
+func CalculateCopterProperties(c *gin.Context, req requests.CalculateCopter) (responses.CopterResponse, error) {
 
 	// Навесное оборудование
 	// var attachments = req.AttachmentsProperties
@@ -35,7 +35,7 @@ func CalculateCopterProperties(c *gin.Context, req requests_properties.Calculate
 	var composit models.Composit
 	if err := postgres.DB.Where("id = ?", battery.CompositId).First(&composit).Error; err != nil {
 		exeptions.InternalServerError(c, err)
-		return responses_properties.CopterResponse{}, err
+		return responses.CopterResponse{}, err
 	}
 
 	// Вычисляем параметры окружающей среды
@@ -45,7 +45,7 @@ func CalculateCopterProperties(c *gin.Context, req requests_properties.Calculate
 	battProps, err := properties_service.GetBatteryProperties(battery, composit)
 	if err != nil {
 		exeptions.InternalServerError(c, err)
-		return responses_properties.CopterResponse{}, err
+		return responses.CopterResponse{}, err
 	}
 	// Вычисляем параметры ESC
 	escWarn := properties_service.GetControllerProperties(esc, battProps.BatteryVoltage)
@@ -57,8 +57,8 @@ func CalculateCopterProperties(c *gin.Context, req requests_properties.Calculate
 	warnings := warning_service.AppendWarningsArrays(envWarn, escWarn, propWarn)
 
 	// Возвращаем расчитанные параметры
-	var response responses_properties.CopterResponse = responses_properties.CopterResponse{
-		CopterProperties: responses_properties.CopterProperties{
+	var response responses.CopterResponse = responses.CopterResponse{
+		CopterProperties: responses.CopterProperties{
 			EnvironmentProperties: envProps,
 			BatteryProperties:     battProps,
 			PropellerProperties:   propProps,

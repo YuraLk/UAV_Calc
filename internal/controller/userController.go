@@ -6,8 +6,8 @@ import (
 
 	"github.com/YuraLk/teca_server/internal/config"
 	"github.com/YuraLk/teca_server/internal/dtos"
+	"github.com/YuraLk/teca_server/internal/dtos/requests"
 	"github.com/YuraLk/teca_server/internal/exeptions"
-	"github.com/YuraLk/teca_server/internal/requests"
 	"github.com/YuraLk/teca_server/internal/service"
 	"github.com/YuraLk/teca_server/internal/utils"
 
