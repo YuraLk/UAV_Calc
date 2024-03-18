@@ -36,24 +36,24 @@ func getVoltageCharacteristics(CVC []types.BatteryData, CriticalChargeProportion
 	return CVCRange, SmoothedVoltage, VoltageUnderLoad
 }
 
-func GetBatteryProperties(obj requests_properties.BatteryProperties, composit models.Composit) (responses_properties.BatteryProperties, error) {
+func GetBatteryProperties(battery requests_properties.BatteryProperties, composit models.Composit) (responses_properties.BatteryProperties, error) {
 	// Общая емкость, (А/Ч)
-	var Capacity float32 = obj.CellCapacity * float32(obj.P) * float32(obj.S)
+	var Capacity float32 = battery.CellCapacity * float32(battery.P) * float32(battery.S)
 
 	// Критическая доля разряда
-	var CriticalChargeProportion float32 = 1 - obj.MaxDischargePercent
+	var CriticalChargeProportion float32 = 1 - battery.MaxDischargePercent
 
 	// Используемая емкость АКБ, (А/Ч)
-	var UsableCapacity float32 = Capacity * (obj.InitialStateOfCharge - CriticalChargeProportion)
+	var UsableCapacity float32 = Capacity * (battery.InitialStateOfCharge - CriticalChargeProportion)
 
 	// Токоотдача аккумулятора, (А)
 	CurrentOutput := responses_properties.CurrentOutput{
-		Per: float32(obj.CRating.Per) * float32(obj.P) * obj.CellCapacity,
-		Max: float32(obj.CRating.Max) * float32(obj.P) * obj.CellCapacity,
+		Per: float32(battery.CRating.Per) * float32(battery.P) * battery.CellCapacity,
+		Max: float32(battery.CRating.Max) * float32(battery.P) * battery.CellCapacity,
 	}
 
 	// Масса АКБ, (Кг)
-	var Mass float32 = float32(obj.S) * float32(obj.P) * obj.CellCapacity
+	var Mass float32 = float32(battery.S) * float32(battery.P) * battery.CellCapacity
 
 	// Декодируем ВАХ аккумулятора из jsonb в []types.BatteryData
 	var CVC []types.BatteryData
@@ -64,13 +64,13 @@ func GetBatteryProperties(obj requests_properties.BatteryProperties, composit mo
 	}
 
 	// По ВАХ аккумулятора ищем напряжения
-	CVCRange, SmoothedCellVoltage, CellVoltageUnderLoad := getVoltageCharacteristics(CVC, CriticalChargeProportion, obj.InitialStateOfCharge)
+	CVCRange, SmoothedCellVoltage, CellVoltageUnderLoad := getVoltageCharacteristics(CVC, CriticalChargeProportion, battery.InitialStateOfCharge)
 
 	// Общее напряжение аккумулятора (В)
-	var BatteryVoltage float64 = SmoothedCellVoltage * float64(obj.S)
+	var BatteryVoltage float64 = SmoothedCellVoltage * float64(battery.S)
 
 	// Напряжение аккумулятора под нагрузкой, (В)
-	var BatteryVoltageUnderLoad = CellVoltageUnderLoad * float64(obj.S)
+	var BatteryVoltageUnderLoad = CellVoltageUnderLoad * float64(battery.S)
 
 	// Мощность аккумулятора исходя из ВАХ аккумулятора, (Вт * Час)
 	var BatteryPower float64 = float64(Capacity) * BatteryVoltage

@@ -14,22 +14,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CalculateCopterProperties(c *gin.Context, req requests.CalculateCopter) (responses.CopterResponse, error) {
+func CalculateCopterProperties(c *gin.Context, props requests.CalculateCopter) (responses.CopterResponse, error) {
 
 	// Навесное оборудование
-	// var attachments = req.AttachmentsProperties
+	// var attachments = props.AttachmentsProperties
 	// ESC
-	var esc = req.ControllerProperties
+	var esc = props.ControllerProperties
 	// Внешняя среда
-	var environment = req.EnvironmentProperties
+	var environment = props.EnvironmentProperties
 	// Мотор
-	// var motor = req.MotorProperties
+	// var motor = props.MotorProperties
 	// Рама
-	// var frame = req.FrameProperties
+	var frame = props.FrameProperties
 	// Пропеллер
-	var propeller = req.PropellerProperties
+	var propeller = props.PropellerProperties
 	// Аккумулятор
-	var battery = req.BatteryProperties
+	var battery = props.BatteryProperties
 
 	// Ищем композит аккумулятора с ВАХ
 	var composit models.Composit
@@ -51,7 +51,7 @@ func CalculateCopterProperties(c *gin.Context, req requests.CalculateCopter) (re
 	escWarn := properties_service.GetControllerProperties(esc, battProps.BatteryVoltage)
 
 	// Вычисляем параметры пропеллера
-	propProps, propWarn := properties_service.GetPropellerProperties(propeller)
+	propProps, propWarn := properties_service.GetPropellerProperties(propeller, frame)
 
 	// Собираем предупреждения
 	warnings := warning_service.AppendWarningsArrays(envWarn, escWarn, propWarn)

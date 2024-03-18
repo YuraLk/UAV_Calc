@@ -33,31 +33,31 @@ func getAirDensity(AirHumidity float64, AirTemperature float64, Pressure float64
 	}
 }
 
-func GetEnvironmentProperties(obj requests_properties.EnvironmentProperties) (responses_properties.EnvironmentProperties, *[]types.Warning) {
+func GetEnvironmentProperties(environment requests_properties.EnvironmentProperties) (responses_properties.EnvironmentProperties, *[]types.Warning) {
 
 	// Проверка на допустимую влажность воздуха
-	airHumidityWarning := warning_service.EnvironmentAirHumidityCheck(obj.AirHumidity)
+	airHumidityWarning := warning_service.EnvironmentAirHumidityCheck(environment.AirHumidity)
 
 	// Высота взлета летательного аппарата относительно оператора, (М)
-	var LocalAltitude float64 = obj.AltitudeRange.Flight - obj.AltitudeRange.Start
+	var LocalAltitude float64 = environment.AltitudeRange.Flight - environment.AltitudeRange.Start
 
 	// Давление на высоте полета летательного аппарата, (Па)
-	var Pressure float64 = consts.SeaLevelPressure * math.Pow((float64(1-((consts.TemperatureLaps*obj.AltitudeRange.Flight)/consts.SeaLevelStandardTemperature))), ((consts.G*consts.M)/consts.UniversalGasConstant*consts.AtmosphericTemperatureGradient))
+	var Pressure float64 = consts.SeaLevelPressure * math.Pow((float64(1-((consts.TemperatureLaps*environment.AltitudeRange.Flight)/consts.SeaLevelStandardTemperature))), ((consts.G*consts.M)/consts.UniversalGasConstant*consts.AtmosphericTemperatureGradient))
 
 	// Вертикальный температурный градиент, (K/км)
-	var VerticalTemperatureGradient float64 = getVerticalTemperatureGradient(obj.AirHumidity, obj.AirTemperature)
+	var VerticalTemperatureGradient float64 = getVerticalTemperatureGradient(environment.AirHumidity, environment.AirTemperature)
 
 	// Температура воздуха на высоте полета ЛА, (K)
-	var FlightAirTemperature float64 = obj.AirTemperature - VerticalTemperatureGradient*float64(LocalAltitude/1000)
+	var FlightAirTemperature float64 = environment.AirTemperature - VerticalTemperatureGradient*float64(LocalAltitude/1000)
 
 	// Давление насыщения при определенной температуре, (Па)
 	var SaturationPressureAtCertainTemperature float64 = consts.ApproximateSaturationPressureOfWaterVaporAtSurfaceOfWaterAt0 * math.Exp(consts.EmpiricalTetensCoefficientA*FlightAirTemperature/(consts.EmpiricalTetensCoefficientB+FlightAirTemperature))
 
 	// Парциальное давление водяного пара, (Па)
-	var PartialPressureOfWaterVapor float64 = obj.AirHumidity * SaturationPressureAtCertainTemperature
+	var PartialPressureOfWaterVapor float64 = environment.AirHumidity * SaturationPressureAtCertainTemperature
 
 	// Плотность воздуха, (Кг/М^3)
-	var AirDensity float64 = getAirDensity(obj.AirHumidity, obj.AirTemperature, Pressure, PartialPressureOfWaterVapor)
+	var AirDensity float64 = getAirDensity(environment.AirHumidity, environment.AirTemperature, Pressure, PartialPressureOfWaterVapor)
 
 	// Возвращаем расчитанные параметры
 	properties := responses_properties.EnvironmentProperties{

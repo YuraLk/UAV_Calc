@@ -7,8 +7,8 @@ import (
 	"github.com/YuraLk/teca_server/internal/types"
 )
 
-func GetControllerProperties(obj requests_properties.ControllerProperties, BatteryVoltage float64) *[]types.Warning {
-	controllerVoltageWarning := warning_service.ControllerVoltageCheck(float64(obj.Voltage), BatteryVoltage)
+func GetControllerProperties(controller requests_properties.ControllerProperties, BatteryVoltage float64) *[]types.Warning {
+	controllerVoltageWarning := warning_service.ControllerVoltageCheck(float64(controller.Voltage), BatteryVoltage)
 
 	warnings := warning_service.AppendWarnings(controllerVoltageWarning)
 	return warnings
