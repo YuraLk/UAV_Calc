@@ -17,4 +17,5 @@ type CopterProperties struct {
 	PropellerProperties   properties.PropellerProperties   `json:"propellerProperties"`
 	MotorProperties       properties.MotorProperties       `json:"motorProperties"`
 	GeneralProperties     properties.GeneralProperties     `json:"generalProperties"`
+	HoverProperties       properties.HoverProperties       `json:"hoverProperties"`
 }
