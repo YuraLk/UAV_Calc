@@ -53,7 +53,7 @@ func GetBatteryProperties(battery requests_properties.BatteryProperties, composi
 	}
 
 	// Масса АКБ, (Кг)
-	var Mass float32 = float32(battery.S) * float32(battery.P) * battery.CellCapacity
+	var Mass float32 = float32(battery.S) * float32(battery.P) * battery.CellMass
 
 	// Декодируем ВАХ аккумулятора из jsonb в []types.BatteryData
 	var CVC []types.BatteryData
