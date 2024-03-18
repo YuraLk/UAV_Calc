@@ -1,8 +1,6 @@
 package copter_service
 
 import (
-	// "fmt"
-
 	"github.com/YuraLk/teca_server/internal/database/postgres"
 	"github.com/YuraLk/teca_server/internal/dtos/requests"
 	"github.com/YuraLk/teca_server/internal/dtos/responses"
@@ -17,13 +15,13 @@ import (
 func CalculateCopterProperties(c *gin.Context, props requests.CalculateCopter) (responses.CopterResponse, error) {
 
 	// Навесное оборудование
-	// var attachments = props.AttachmentsProperties
+	var attachments = props.AttachmentsProperties
 	// ESC
 	var esc = props.ControllerProperties
 	// Внешняя среда
 	var environment = props.EnvironmentProperties
 	// Мотор
-	// var motor = props.MotorProperties
+	var motor = props.MotorProperties
 	// Рама
 	var frame = props.FrameProperties
 	// Пропеллер
@@ -53,8 +51,16 @@ func CalculateCopterProperties(c *gin.Context, props requests.CalculateCopter) (
 	// Вычисляем параметры пропеллера
 	propProps, propWarn := properties_service.GetPropellerProperties(propeller, frame)
 
+	// Вычисляем параметры мотора
+	motorProps, motorWarn := properties_service.GetMotorProperties(motor, frame)
+
+	// Вычисление общих параметров для обоих режимов полета
+	generalProps := properties_service.GetGeneralProperties(frame, attachments, battProps.Mass, esc.Mass, propProps.Mass, motorProps.Mass)
+
+	// Вычисляем параметры для режима зависания
+
 	// Собираем предупреждения
-	warnings := warning_service.AppendWarningsArrays(envWarn, escWarn, propWarn)
+	warnings := warning_service.AppendWarningsArrays(envWarn, escWarn, propWarn, motorWarn)
 
 	// Возвращаем расчитанные параметры
 	var response responses.CopterResponse = responses.CopterResponse{
@@ -62,6 +68,8 @@ func CalculateCopterProperties(c *gin.Context, props requests.CalculateCopter) (
 			EnvironmentProperties: envProps,
 			BatteryProperties:     battProps,
 			PropellerProperties:   propProps,
+			MotorProperties:       motorProps,
+			GeneralProperties:     generalProps,
 		},
 		Warings: warnings,
 	}

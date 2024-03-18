@@ -15,4 +15,6 @@ type CopterProperties struct {
 	EnvironmentProperties responses_properties.EnvironmentProperties `json:"environmentProperties"`
 	BatteryProperties     responses_properties.BatteryProperties     `json:"batteryProperties"`
 	PropellerProperties   responses_properties.PropellerProperties   `json:"propellerProperties"`
+	MotorProperties       responses_properties.MotorProperties       `json:"motorProperties"`
+	GeneralProperties     responses_properties.GeneralProperties     `json:"generalProperties"`
 }
