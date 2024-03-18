@@ -1,5 +1,6 @@
 package properties
 
 type HoverProperties struct {
-	ProperllerHangingLift float32 `json:"properllerHangingLift"`
+	PropellerHangingLift float64 `json:"propellerHangingLift"`
+	PropellerSpeed       float64 `json:"propellerSpeed"`
 }

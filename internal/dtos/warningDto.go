@@ -1,6 +1,6 @@
-package types
+package dtos
 
-type Warning struct {
+type WarningDto struct {
 	Level uint8
 	Field string
 	Text  string

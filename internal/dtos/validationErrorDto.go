@@ -1,6 +1,6 @@
-package types
+package dtos
 
-type ValidationError struct {
+type ValidationErrorDto struct {
 	Key   string
 	Field string
 	Error string

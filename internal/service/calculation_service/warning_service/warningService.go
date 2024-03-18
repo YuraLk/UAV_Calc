@@ -1,9 +1,11 @@
 package warning_service
 
-import "github.com/YuraLk/teca_server/internal/types"
+import (
+	"github.com/YuraLk/teca_server/internal/dtos"
+)
 
-func AppendWarningsArrays(arrays ...*[]types.Warning) []types.Warning {
-	var warnings []types.Warning
+func AppendWarningsArrays(arrays ...*[]dtos.WarningDto) []dtos.WarningDto {
+	var warnings []dtos.WarningDto
 	for _, warning := range arrays {
 		if warning != nil {
 			warnings = append(warnings, *warning...)
@@ -12,8 +14,8 @@ func AppendWarningsArrays(arrays ...*[]types.Warning) []types.Warning {
 	return warnings
 }
 
-func AppendWarnings(array ...*types.Warning) *[]types.Warning {
-	var warnings []types.Warning
+func AppendWarnings(array ...*dtos.WarningDto) *[]dtos.WarningDto {
+	var warnings []dtos.WarningDto
 	for _, warning := range array {
 		if warning != nil {
 			warnings = append(warnings, *warning)
@@ -23,9 +25,9 @@ func AppendWarnings(array ...*types.Warning) *[]types.Warning {
 }
 
 // Проверка приемлимой влажности воздуха для полета
-func EnvironmentAirHumidityCheck(AirHumidity float64) *types.Warning {
+func EnvironmentAirHumidityCheck(AirHumidity float64) *dtos.WarningDto {
 	if AirHumidity >= 0.8 {
-		return &types.Warning{
+		return &dtos.WarningDto{
 			Level: 3,
 			Field: "Environment.AirHumidity",
 			Text:  "Влажность воздуха превышает рекомендуемый предел. Из-за конденсации влаги на электронике могут возникнуть короткие замыкания или другие поломки.",
@@ -35,9 +37,9 @@ func EnvironmentAirHumidityCheck(AirHumidity float64) *types.Warning {
 	return nil
 }
 
-func ControllerVoltageCheck(ControllerVoltage float64, BatteryVoltage float64) *types.Warning {
+func ControllerVoltageCheck(ControllerVoltage float64, BatteryVoltage float64) *dtos.WarningDto {
 	if ControllerVoltage < BatteryVoltage {
-		return &types.Warning{
+		return &dtos.WarningDto{
 			Level: 2,
 			Field: "Controller.Voltage",
 			Text:  "Номинальное напряжение аккумулятора превышает номинальное напряжение регулятора скорости (ESC). Рекомендуем снизить количество последовательно соединенных ячеек аккумулятора (S) или подобрать ESC с большим номинальным напряжением.",

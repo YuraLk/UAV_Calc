@@ -2,7 +2,7 @@ package copter_service
 
 import (
 	"github.com/YuraLk/teca_server/internal/database/postgres"
-	dtos "github.com/YuraLk/teca_server/internal/dtos/copter_dtos"
+	copter_dtos "github.com/YuraLk/teca_server/internal/dtos/copter_dtos"
 	"github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request"
 	"github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response"
 	"github.com/YuraLk/teca_server/internal/exeptions"
@@ -60,7 +60,7 @@ func CalculateCopterProperties(c *gin.Context, props request.CalculateCopter) (r
 	generalProps := properties_service.GetGeneralProperties(frame, attachments, battProps.Mass, esc.Mass, propProps.Mass, motorProps.Mass)
 
 	// Вычисляем параметры для режима зависания
-	hoverProps, hoverWarn := hover_service.GetHoverProperties(props, dtos.StandartProperties{
+	hoverProps, hoverWarn := hover_service.GetHoverProperties(props, copter_dtos.StandartProperties{
 		EnvironmentProperties: envProps,
 		BatteryProperties:     battProps,
 		PropellerProperties:   propProps,

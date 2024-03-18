@@ -4,10 +4,10 @@ import (
 	"math"
 
 	"github.com/YuraLk/teca_server/internal/consts"
+	"github.com/YuraLk/teca_server/internal/dtos"
 	request_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request/properties"
 	response_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response/properties"
 	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
-	"github.com/YuraLk/teca_server/internal/types"
 )
 
 func getVerticalTemperatureGradient(AirHumidity float64, AirTemperature float64) float64 {
@@ -33,7 +33,7 @@ func getAirDensity(AirHumidity float64, AirTemperature float64, Pressure float64
 	}
 }
 
-func GetEnvironmentProperties(environment request_properties.EnvironmentProperties) (response_properties.EnvironmentProperties, *[]types.Warning) {
+func GetEnvironmentProperties(environment request_properties.EnvironmentProperties) (response_properties.EnvironmentProperties, *[]dtos.WarningDto) {
 
 	// Проверка на допустимую влажность воздуха
 	airHumidityWarning := warning_service.EnvironmentAirHumidityCheck(environment.AirHumidity)

@@ -1,6 +1,6 @@
-package types
+package dtos
 
-type Binding struct {
+type BindingDto struct {
 	Key   string
 	Value interface{}
 	Error error

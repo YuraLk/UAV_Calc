@@ -4,13 +4,13 @@ import (
 	"math"
 
 	"github.com/YuraLk/teca_server/internal/consts"
+	"github.com/YuraLk/teca_server/internal/dtos"
 	request_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request/properties"
 	response_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response/properties"
 	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
-	"github.com/YuraLk/teca_server/internal/types"
 )
 
-func GetPropellerProperties(propeller request_properties.PropellerProperties, frame request_properties.FrameProperties) (response_properties.PropellerProperties, *[]types.Warning) {
+func GetPropellerProperties(propeller request_properties.PropellerProperties, frame request_properties.FrameProperties) (response_properties.PropellerProperties, *[]dtos.WarningDto) {
 
 	// Радиус пропеллера, (М)
 	var PropellerRadius float32 = propeller.Diameter / 2

@@ -3,15 +3,15 @@ package properties_service
 import (
 	"encoding/json"
 
+	dtos "github.com/YuraLk/teca_server/internal/dtos/battery_dtos"
 	request_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request/properties"
 	response_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response/properties"
 	"github.com/YuraLk/teca_server/internal/models"
-	"github.com/YuraLk/teca_server/internal/types"
 )
 
-func getVoltageCharacteristics(CVC []types.BatteryData, CriticalChargeProportion float32, InitialStateOfCharge float32) ([]types.BatteryData, float64, float64) {
+func getVoltageCharacteristics(CVC []dtos.BatteryDto, CriticalChargeProportion float32, InitialStateOfCharge float32) ([]dtos.BatteryDto, float64, float64) {
 	// Используемый диапазон ВАХ исходя из заданного диапазона зарядов
-	var CVCRange []types.BatteryData
+	var CVCRange []dtos.BatteryDto
 
 	// Наибольшее сглаженное напряжение исходя из заданного диапазона зарядов
 	var SmoothedVoltage float64
@@ -55,8 +55,8 @@ func GetBatteryProperties(battery request_properties.BatteryProperties, composit
 	// Масса АКБ, (Кг)
 	var Mass float32 = float32(battery.S) * float32(battery.P) * battery.CellMass
 
-	// Декодируем ВАХ аккумулятора из jsonb в []types.BatteryData
-	var CVC []types.BatteryData
+	// Декодируем ВАХ аккумулятора из jsonb в []dtos.BatteryData
+	var CVC []dtos.BatteryDto
 	err := json.Unmarshal([]byte(composit.CVC), &CVC)
 	// В случае ошибки выбрасываем 500 статус
 	if err != nil {

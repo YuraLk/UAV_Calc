@@ -4,25 +4,24 @@ import (
 	"encoding/csv"
 	"errors"
 
-	// "fmt"
 	"mime/multipart"
 	"strconv"
 	"strings"
 
-	"github.com/YuraLk/teca_server/internal/types"
+	dtos "github.com/YuraLk/teca_server/internal/dtos/battery_dtos"
 )
 
 func replaceCommaWithDot(str string) string {
 	return strings.ReplaceAll(str, ",", ".")
 }
 
-func ParseTableFromFile(file *multipart.FileHeader) ([]types.BatteryData, error) {
+func ParseTableFromFile(file *multipart.FileHeader) ([]dtos.BatteryDto, error) {
 
 	// Открываем файл
 	src, err := file.Open()
 
 	if err != nil {
-		return []types.BatteryData{}, err
+		return []dtos.BatteryDto{}, err
 	}
 	defer src.Close()
 
@@ -33,7 +32,7 @@ func ParseTableFromFile(file *multipart.FileHeader) ([]types.BatteryData, error)
 	reader.Comment = '#'
 
 	// Массив данных
-	var CVC []types.BatteryData
+	var CVC []dtos.BatteryDto
 
 	for {
 		record, err := reader.Read()
@@ -58,7 +57,7 @@ func ParseTableFromFile(file *multipart.FileHeader) ([]types.BatteryData, error)
 			continue
 		}
 
-		CVC = append(CVC, types.BatteryData{
+		CVC = append(CVC, dtos.BatteryDto{
 			ChargePercentage: uint8(ChargePercentage),
 			SmoothedVoltage:  SmoothedVoltage,
 			LoadVoltage:      LoadVoltage,
@@ -68,7 +67,7 @@ func ParseTableFromFile(file *multipart.FileHeader) ([]types.BatteryData, error)
 
 	// Проверяем, что длина массива CVC равна 100, то есть все записи были успешно прочитаны
 	if len(CVC) != 101 {
-		return []types.BatteryData{}, errors.New("not all records were read correctly")
+		return []dtos.BatteryDto{}, errors.New("not all records were read correctly")
 	}
 
 	return CVC, nil

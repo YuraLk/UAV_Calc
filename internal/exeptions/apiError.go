@@ -3,7 +3,7 @@ package exeptions
 import (
 	"net/http"
 
-	"github.com/YuraLk/teca_server/internal/types"
+	"github.com/YuraLk/teca_server/internal/dtos"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,17 +18,15 @@ func InternalServerError(c *gin.Context, err error) {
 		Details: err.Error(),
 	}
 	c.AbortWithStatusJSON(http.StatusInternalServerError, response)
-	return
 }
 
-func UnprocessableEntity(c *gin.Context, errors []types.ValidationError) {
+func UnprocessableEntity(c *gin.Context, errors []dtos.ValidationErrorDto) {
 	response := Error{
 		Error:   "Ошибка валидации!",
 		Details: errors,
 	}
 	// 422
 	c.AbortWithStatusJSON(http.StatusUnprocessableEntity, response)
-	return
 }
 
 func BadRequest(c *gin.Context, msg string, err error) {
@@ -37,7 +35,6 @@ func BadRequest(c *gin.Context, msg string, err error) {
 		Details: err.Error(),
 	}
 	c.AbortWithStatusJSON(http.StatusBadRequest, response)
-	return
 }
 
 func UnauthorizedError(c *gin.Context, err error) {
@@ -46,7 +43,6 @@ func UnauthorizedError(c *gin.Context, err error) {
 		Details: err.Error(),
 	}
 	c.AbortWithStatusJSON(http.StatusUnauthorized, response)
-	return
 }
 
 func RequestTimeout(c *gin.Context) {
@@ -54,7 +50,6 @@ func RequestTimeout(c *gin.Context) {
 		Error: "Тайм-аут!",
 	}
 	c.AbortWithStatusJSON(http.StatusRequestTimeout, response)
-	return
 }
 
 func Forbidden(c *gin.Context) {
@@ -62,7 +57,6 @@ func Forbidden(c *gin.Context) {
 		Error: "Доступ запрещен!",
 	}
 	c.AbortWithStatusJSON(http.StatusForbidden, response)
-	return
 }
 
 func NotFound(c *gin.Context, msg string) {
@@ -70,5 +64,4 @@ func NotFound(c *gin.Context, msg string) {
 		Error: msg,
 	}
 	c.AbortWithStatusJSON(http.StatusNotFound, response)
-	return
 }

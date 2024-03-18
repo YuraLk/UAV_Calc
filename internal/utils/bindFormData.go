@@ -1,16 +1,18 @@
 package utils
 
-import "github.com/YuraLk/teca_server/internal/types"
+import (
+	"github.com/YuraLk/teca_server/internal/dtos"
+)
 
-var BindFormData = func(area string, args []types.Binding) []types.ValidationError {
+var BindFormData = func(area string, args []dtos.BindingDto) []dtos.ValidationErrorDto {
 	// Создаем массив для объектов ValidationError
-	var errors []types.ValidationError
+	var errors []dtos.ValidationErrorDto
 
 	for _, arg := range args {
 
 		// Проверка для файлов
 		if arg.Error != nil {
-			errorObj := types.ValidationError{
+			errorObj := dtos.ValidationErrorDto{
 				Key:   area + "." + arg.Key,
 				Field: arg.Key,
 				Tag:   "required",
@@ -23,7 +25,7 @@ var BindFormData = func(area string, args []types.Binding) []types.ValidationErr
 		switch v := arg.Value.(type) {
 		case string:
 			if v == "" {
-				errorObj := types.ValidationError{
+				errorObj := dtos.ValidationErrorDto{
 					Key:   area + "." + arg.Key,
 					Field: arg.Key,
 					Tag:   "required",

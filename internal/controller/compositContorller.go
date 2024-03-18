@@ -1,9 +1,9 @@
 package controller
 
 import (
+	"github.com/YuraLk/teca_server/internal/dtos"
 	"github.com/YuraLk/teca_server/internal/exeptions"
 	"github.com/YuraLk/teca_server/internal/service"
-	"github.com/YuraLk/teca_server/internal/types"
 	"github.com/YuraLk/teca_server/internal/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -22,7 +22,7 @@ func CreateComposit(c *gin.Context) {
 	file, err := c.FormFile("file")
 
 	// Проверка валидности данных из FormData
-	var errors = utils.BindFormData("Composit", []types.Binding{
+	var errors = utils.BindFormData("Composit", []dtos.BindingDto{
 		{
 			Key:   "Name",
 			Value: name,
@@ -54,7 +54,7 @@ func UpdateComposit(c *gin.Context) {
 	file, err := c.FormFile("file")
 
 	// Проверка валидности данных из FormData
-	var errors = utils.BindFormData("Composit", []types.Binding{
+	var errors = utils.BindFormData("Composit", []dtos.BindingDto{
 		{
 			Key:   "Id",
 			Value: id,
