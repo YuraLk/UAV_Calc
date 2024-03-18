@@ -8,25 +8,21 @@ import (
 	"mime/multipart"
 	"strconv"
 	"strings"
-)
 
-type BatteryData struct {
-	ChargePercentage uint8
-	SmoothedVoltage  float64
-	LoadVoltage      float64
-}
+	"github.com/YuraLk/teca_server/internal/types"
+)
 
 func replaceCommaWithDot(str string) string {
 	return strings.ReplaceAll(str, ",", ".")
 }
 
-func ParseTableFromFile(file *multipart.FileHeader) ([]BatteryData, error) {
+func ParseTableFromFile(file *multipart.FileHeader) ([]types.BatteryData, error) {
 
 	// Открываем файл
 	src, err := file.Open()
 
 	if err != nil {
-		return []BatteryData{}, err
+		return []types.BatteryData{}, err
 	}
 	defer src.Close()
 
@@ -37,7 +33,7 @@ func ParseTableFromFile(file *multipart.FileHeader) ([]BatteryData, error) {
 	reader.Comment = '#'
 
 	// Массив данных
-	var CVC []BatteryData
+	var CVC []types.BatteryData
 
 	for {
 		record, err := reader.Read()
@@ -62,7 +58,7 @@ func ParseTableFromFile(file *multipart.FileHeader) ([]BatteryData, error) {
 			continue
 		}
 
-		CVC = append(CVC, BatteryData{
+		CVC = append(CVC, types.BatteryData{
 			ChargePercentage: uint8(ChargePercentage),
 			SmoothedVoltage:  SmoothedVoltage,
 			LoadVoltage:      LoadVoltage,
@@ -72,7 +68,7 @@ func ParseTableFromFile(file *multipart.FileHeader) ([]BatteryData, error) {
 
 	// Проверяем, что длина массива CVC равна 100, то есть все записи были успешно прочитаны
 	if len(CVC) != 101 {
-		return []BatteryData{}, errors.New("not all records were read correctly")
+		return []types.BatteryData{}, errors.New("not all records were read correctly")
 	}
 
 	return CVC, nil

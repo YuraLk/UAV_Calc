@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/YuraLk/teca_server/internal/consts"
@@ -58,8 +57,6 @@ func GetEnvironmentProperties(obj requests.EnvironmentProperties) (responses.Env
 
 	// Плотность воздуха, (Кг/М^3)
 	var AirDensity float64 = getAirDensity(obj.AirHumidity, obj.AirTemperature, Pressure, PartialPressureOfWaterVapor)
-
-	fmt.Println(PartialPressureOfWaterVapor)
 
 	// Возвращаем расчитанные параметры
 	properties := responses.EnvironmentProperties{

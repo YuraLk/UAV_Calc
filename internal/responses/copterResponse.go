@@ -13,4 +13,5 @@ type CopterResponse struct {
 
 type CopterProperties struct {
 	EnvironmentProperties responseProperties.EnvironmentProperties `json:"environmentProperties"`
+	BatteryProperties     responseProperties.BatteryProperties     `json:"batteryProperties"`
 }
