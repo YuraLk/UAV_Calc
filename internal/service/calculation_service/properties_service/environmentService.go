@@ -1,4 +1,4 @@
-package service
+package properties_service
 
 import (
 	"math"
@@ -6,6 +6,7 @@ import (
 	"github.com/YuraLk/teca_server/internal/consts"
 	requests_properties "github.com/YuraLk/teca_server/internal/requests/properties"
 	responses_properties "github.com/YuraLk/teca_server/internal/responses/properties"
+	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
 	"github.com/YuraLk/teca_server/internal/types"
 )
 
@@ -35,7 +36,7 @@ func getAirDensity(AirHumidity float64, AirTemperature float64, Pressure float64
 func GetEnvironmentProperties(obj requests_properties.EnvironmentProperties) (responses_properties.EnvironmentProperties, *[]types.Warning) {
 
 	// Проверка на допустимую влажность воздуха
-	airHumidityWarning := EnvironmentAirHumidityCheck(obj.AirHumidity)
+	airHumidityWarning := warning_service.EnvironmentAirHumidityCheck(obj.AirHumidity)
 
 	// Высота взлета летательного аппарата относительно оператора, (М)
 	var LocalAltitude float64 = obj.AltitudeRange.Flight - obj.AltitudeRange.Start
@@ -63,7 +64,7 @@ func GetEnvironmentProperties(obj requests_properties.EnvironmentProperties) (re
 		AirDensity: AirDensity,
 	}
 
-	warnings := AppendWarnings(airHumidityWarning)
+	warnings := warning_service.AppendWarnings(airHumidityWarning)
 
 	return properties, warnings
 }

@@ -1,15 +1,16 @@
-package service
+package properties_service
 
 import (
 	requests_properties "github.com/YuraLk/teca_server/internal/requests/properties"
 	responses_properties "github.com/YuraLk/teca_server/internal/responses/properties"
+	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
 
 	"github.com/YuraLk/teca_server/internal/types"
 )
 
 func GetPropellerProperties(obj requests_properties.PropellerProperties) (responses_properties.PropellerProperties, *[]types.Warning) {
 
-	warnings := AppendWarnings()
+	warnings := warning_service.AppendWarnings()
 
 	// Возвращаем расчитанные параметры
 	properties := responses_properties.PropellerProperties{}

@@ -1,4 +1,4 @@
-package service
+package properties_service
 
 import (
 	"encoding/json"

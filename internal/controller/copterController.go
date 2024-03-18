@@ -3,7 +3,7 @@ package controller
 import (
 	"github.com/YuraLk/teca_server/internal/exeptions"
 	"github.com/YuraLk/teca_server/internal/requests"
-	"github.com/YuraLk/teca_server/internal/service"
+	copter_service "github.com/YuraLk/teca_server/internal/service/calculation_service/copter_service"
 	"github.com/YuraLk/teca_server/internal/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +21,7 @@ func CalculateCopterProperties(c *gin.Context) {
 	// Извлекаем данные из тела application/json
 	c.ShouldBindJSON(&req)
 
-	properties, err := service.CalculateCopterProperties(c, req)
+	properties, err := copter_service.CalculateCopterProperties(c, req)
 	if err == nil {
 		c.JSON(200, properties)
 	}

@@ -1,4 +1,4 @@
-package service
+package copter_service
 
 import (
 	// "fmt"
@@ -8,6 +8,9 @@ import (
 	"github.com/YuraLk/teca_server/internal/models"
 	requests_properties "github.com/YuraLk/teca_server/internal/requests"
 	responses_properties "github.com/YuraLk/teca_server/internal/responses"
+	"github.com/YuraLk/teca_server/internal/service/calculation_service/properties_service"
+	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,22 +39,22 @@ func CalculateCopterProperties(c *gin.Context, req requests_properties.Calculate
 	}
 
 	// Вычисляем параметры окружающей среды
-	envProps, envWarn := GetEnvironmentProperties(environment)
+	envProps, envWarn := properties_service.GetEnvironmentProperties(environment)
 
 	// Вычисляем параметры батареи
-	battProps, err := GetBatteryProperties(battery, composit)
+	battProps, err := properties_service.GetBatteryProperties(battery, composit)
 	if err != nil {
 		exeptions.InternalServerError(c, err)
 		return responses_properties.CopterResponse{}, err
 	}
 	// Вычисляем параметры ESC
-	escWarn := GetControllerProperties(esc, battProps.BatteryVoltage)
+	escWarn := properties_service.GetControllerProperties(esc, battProps.BatteryVoltage)
 
 	// Вычисляем параметры пропеллера
-	propProps, propWarn := GetPropellerProperties(propeller)
+	propProps, propWarn := properties_service.GetPropellerProperties(propeller)
 
 	// Собираем предупреждения
-	warnings := AppendWarningsArrays(envWarn, escWarn, propWarn)
+	warnings := warning_service.AppendWarningsArrays(envWarn, escWarn, propWarn)
 
 	// Возвращаем расчитанные параметры
 	var response responses_properties.CopterResponse = responses_properties.CopterResponse{

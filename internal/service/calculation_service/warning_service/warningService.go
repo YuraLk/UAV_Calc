@@ -1,4 +1,4 @@
-package service
+package warning_service
 
 import "github.com/YuraLk/teca_server/internal/types"
 
