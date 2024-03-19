@@ -1,4 +1,4 @@
-package properties_service
+package service
 
 import (
 	"encoding/json"
@@ -9,7 +9,9 @@ import (
 	"github.com/YuraLk/teca_server/internal/models"
 )
 
-func getVoltageCharacteristics(CVC []dtos.BatteryDto, CriticalChargeProportion float32, InitialStateOfCharge float32) ([]dtos.BatteryDto, float64, float64) {
+type BatteryService struct{}
+
+func (BatteryService) GetVoltageCharacteristics(CVC []dtos.BatteryDto, CriticalChargeProportion float32, InitialStateOfCharge float32) ([]dtos.BatteryDto, float64, float64) {
 	// Используемый диапазон ВАХ исходя из заданного диапазона зарядов
 	var CVCRange []dtos.BatteryDto
 
@@ -36,7 +38,7 @@ func getVoltageCharacteristics(CVC []dtos.BatteryDto, CriticalChargeProportion f
 	return CVCRange, SmoothedVoltage, VoltageUnderLoad
 }
 
-func GetBatteryProperties(battery request_properties.BatteryProperties, composit models.Composit) (response_properties.BatteryProperties, error) {
+func (BatteryService) GetProperties(battery request_properties.BatteryProperties, composit models.Composit) (response_properties.BatteryProperties, error) {
 	// Общая емкость, (А/Ч)
 	var Capacity float32 = battery.CellCapacity * float32(battery.P) * float32(battery.S)
 
@@ -64,7 +66,7 @@ func GetBatteryProperties(battery request_properties.BatteryProperties, composit
 	}
 
 	// По ВАХ аккумулятора ищем напряжения
-	CVCRange, SmoothedCellVoltage, CellVoltageUnderLoad := getVoltageCharacteristics(CVC, CriticalChargeProportion, battery.InitialStateOfCharge)
+	CVCRange, SmoothedCellVoltage, CellVoltageUnderLoad := BatteryService{}.GetVoltageCharacteristics(CVC, CriticalChargeProportion, battery.InitialStateOfCharge)
 
 	// Общее напряжение аккумулятора (В)
 	var BatteryVoltage float64 = SmoothedCellVoltage * float64(battery.S)

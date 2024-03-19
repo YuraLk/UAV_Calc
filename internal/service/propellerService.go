@@ -1,4 +1,4 @@
-package properties_service
+package service
 
 import (
 	"math"
@@ -7,10 +7,11 @@ import (
 	"github.com/YuraLk/teca_server/internal/dtos"
 	request_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request/properties"
 	response_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response/properties"
-	"github.com/YuraLk/teca_server/internal/service/calculation/warning_service"
 )
 
-func GetPropellerProperties(propeller request_properties.PropellerProperties, frame request_properties.FrameProperties) (response_properties.PropellerProperties, *[]dtos.WarningDto) {
+type PropellerService struct{}
+
+func (PropellerService) GetProperties(propeller request_properties.PropellerProperties, frame request_properties.FrameProperties) (response_properties.PropellerProperties, *[]dtos.WarningDto) {
 
 	// Радиус пропеллера, (М)
 	var PropellerRadius float32 = propeller.Diameter / 2
@@ -34,7 +35,7 @@ func GetPropellerProperties(propeller request_properties.PropellerProperties, fr
 	var AerodynamicQuality float64 = math.Pow(float64(propeller.DimensionlessThrustConstant), (float64(3)/float64(2))) / float64(propeller.DimensionlessPowerConstant)
 
 	// Собираем все предупреждения
-	warnings := warning_service.AppendWarnings()
+	warnings := WarningService{}.Append()
 
 	// Возвращаем расчитанные параметры
 	properties := response_properties.PropellerProperties{

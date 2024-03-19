@@ -1,15 +1,16 @@
-package copter_service
+package service
 
 import (
+	"math"
+
 	"github.com/YuraLk/teca_server/internal/database/postgres"
-	copter_dtos "github.com/YuraLk/teca_server/internal/dtos/copter_dtos"
+	"github.com/YuraLk/teca_server/internal/dtos"
+	"github.com/YuraLk/teca_server/internal/dtos/copter_dtos"
 	"github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request"
 	"github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response"
+	"github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response/properties"
 	"github.com/YuraLk/teca_server/internal/exeptions"
 	"github.com/YuraLk/teca_server/internal/models"
-	"github.com/YuraLk/teca_server/internal/service/calculation/copter_service/hover_service"
-	"github.com/YuraLk/teca_server/internal/service/calculation/properties_service"
-	"github.com/YuraLk/teca_server/internal/service/calculation/warning_service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +20,12 @@ type CopterService struct {
 	Props request.CalculateCopter
 }
 
-func (S CopterService) CopterProperties() (response.CopterResponse, error) {
+type ModeProperties struct {
+	Props request.CalculateCopter
+	Calc  copter_dtos.StandartProperties
+}
+
+func (S CopterService) GetProperties() (response.CopterResponse, error) {
 
 	// Навесное оборудование
 	var attachments = S.Props.AttachmentsProperties
@@ -44,37 +50,37 @@ func (S CopterService) CopterProperties() (response.CopterResponse, error) {
 	}
 
 	// Вычисляем параметры окружающей среды
-	envProps, envWarn := properties_service.GetEnvironmentProperties(environment)
+	envProps, envWarn := EnvironmentService{}.GetProperties(environment)
 
 	// Вычисляем параметры батареи
-	battProps, err := properties_service.GetBatteryProperties(battery, composit)
+	battProps, err := BatteryService{}.GetProperties(battery, composit)
 	if err != nil {
 		exeptions.InternalServerError(S.C, err)
 		return response.CopterResponse{}, err
 	}
 	// Вычисляем параметры ESC
-	escWarn := properties_service.GetControllerProperties(esc, battProps.BatteryVoltage)
+	escWarn := ControllerService{}.GetProperties(esc, battProps.BatteryVoltage)
 
 	// Вычисляем параметры пропеллера
-	propProps, propWarn := properties_service.GetPropellerProperties(propeller, frame)
+	propProps, propWarn := PropellerService{}.GetProperties(propeller, frame)
 
 	// Вычисляем параметры мотора
-	motorProps, motorWarn := properties_service.GetMotorProperties(motor, frame)
+	motorProps, motorWarn := MotorService{}.GetProperties(motor, frame)
 
 	// Вычисление общих параметров для обоих режимов полета
-	generalProps := properties_service.GetGeneralProperties(frame, attachments, battProps.Mass, esc.Mass, propProps.Mass, motorProps.Mass)
+	generalProps := GeneralService{}.GetProperties(frame, attachments, battProps.Mass, esc.Mass, propProps.Mass, motorProps.Mass)
 
 	// Вычисляем параметры для режима зависания
-	hoverProps, hoverWarn := hover_service.GetHoverProperties(S.Props, copter_dtos.StandartProperties{
+	hoverProps, hoverWarn := ModeProperties{Props: S.Props, Calc: copter_dtos.StandartProperties{
 		EnvironmentProperties: envProps,
 		BatteryProperties:     battProps,
 		PropellerProperties:   propProps,
 		MotorProperties:       motorProps,
 		GeneralProperties:     generalProps,
-	})
+	}}.getHoverProperties()
 
 	// Собираем предупреждения
-	warnings := warning_service.AppendWarningsArrays(envWarn, escWarn, propWarn, motorWarn, hoverWarn)
+	warnings := WarningService{}.AppendArrays(envWarn, escWarn, propWarn, motorWarn, hoverWarn)
 
 	// Возвращаем расчитанные параметры
 	var response response.CopterResponse = response.CopterResponse{
@@ -90,4 +96,20 @@ func (S CopterService) CopterProperties() (response.CopterResponse, error) {
 	}
 
 	return response, nil
+}
+
+func (S ModeProperties) getHoverProperties() (properties.HoverProperties, *[]dtos.WarningDto) {
+
+	// Подъемная сила каждого пропеллера, необходимая для поддержания ЛА в воздухе, (Н):
+	var PropellerHangingLift float64 = float64(S.Calc.GeneralProperties.Weight) / float64(S.Props.FrameProperties.PropellersNumber)
+
+	// Частота вращения винта, (Гц)
+	var PropellerSpeed float64 = math.Sqrt(PropellerHangingLift / (float64(S.Props.PropellerProperties.DimensionlessPowerConstant) * S.Calc.EnvironmentProperties.AirDensity * math.Pow(float64(S.Props.PropellerProperties.Diameter), 4)))
+
+	warnings := WarningService{}.Append()
+
+	return properties.HoverProperties{
+		PropellerHangingLift: PropellerHangingLift,
+		PropellerSpeed:       PropellerSpeed,
+	}, warnings
 }

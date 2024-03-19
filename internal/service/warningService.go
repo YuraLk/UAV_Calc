@@ -1,10 +1,12 @@
-package warning_service
+package service
 
 import (
 	"github.com/YuraLk/teca_server/internal/dtos"
 )
 
-func AppendWarningsArrays(arrays ...*[]dtos.WarningDto) []dtos.WarningDto {
+type WarningService struct{}
+
+func (WarningService) AppendArrays(arrays ...*[]dtos.WarningDto) []dtos.WarningDto {
 	var warnings []dtos.WarningDto
 	for _, warning := range arrays {
 		if warning != nil {
@@ -14,7 +16,7 @@ func AppendWarningsArrays(arrays ...*[]dtos.WarningDto) []dtos.WarningDto {
 	return warnings
 }
 
-func AppendWarnings(array ...*dtos.WarningDto) *[]dtos.WarningDto {
+func (WarningService) Append(array ...*dtos.WarningDto) *[]dtos.WarningDto {
 	var warnings []dtos.WarningDto
 	for _, warning := range array {
 		if warning != nil {
@@ -25,7 +27,7 @@ func AppendWarnings(array ...*dtos.WarningDto) *[]dtos.WarningDto {
 }
 
 // Проверка приемлимой влажности воздуха для полета
-func EnvironmentAirHumidityCheck(AirHumidity float64) *dtos.WarningDto {
+func (WarningService) EnvironmentAirHumidityCheck(AirHumidity float64) *dtos.WarningDto {
 	if AirHumidity >= 0.8 {
 		return &dtos.WarningDto{
 			Level: 3,
@@ -37,7 +39,7 @@ func EnvironmentAirHumidityCheck(AirHumidity float64) *dtos.WarningDto {
 	return nil
 }
 
-func ControllerVoltageCheck(ControllerVoltage float64, BatteryVoltage float64) *dtos.WarningDto {
+func (WarningService) ControllerVoltageCheck(ControllerVoltage float64, BatteryVoltage float64) *dtos.WarningDto {
 	if ControllerVoltage < BatteryVoltage {
 		return &dtos.WarningDto{
 			Level: 2,
