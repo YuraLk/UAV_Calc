@@ -7,7 +7,7 @@ import (
 	"github.com/YuraLk/teca_server/internal/dtos"
 	request_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request/properties"
 	response_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response/properties"
-	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
+	"github.com/YuraLk/teca_server/internal/service/calculation/warning_service"
 )
 
 func getVerticalTemperatureGradient(AirHumidity float64, AirTemperature float64) float64 {

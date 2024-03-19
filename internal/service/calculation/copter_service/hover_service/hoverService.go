@@ -7,7 +7,7 @@ import (
 	copter_dtos "github.com/YuraLk/teca_server/internal/dtos/copter_dtos"
 	"github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request"
 	response_properties "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response/properties"
-	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
+	"github.com/YuraLk/teca_server/internal/service/calculation/warning_service"
 )
 
 func GetHoverProperties(pr request.CalculateCopter, st copter_dtos.StandartProperties) (response_properties.HoverProperties, *[]dtos.WarningDto) {

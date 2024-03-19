@@ -7,9 +7,9 @@ import (
 	"github.com/YuraLk/teca_server/internal/dtos/copter_dtos/response"
 	"github.com/YuraLk/teca_server/internal/exeptions"
 	"github.com/YuraLk/teca_server/internal/models"
-	"github.com/YuraLk/teca_server/internal/service/calculation_service/copter_service/hover_service"
-	"github.com/YuraLk/teca_server/internal/service/calculation_service/properties_service"
-	"github.com/YuraLk/teca_server/internal/service/calculation_service/warning_service"
+	"github.com/YuraLk/teca_server/internal/service/calculation/copter_service/hover_service"
+	"github.com/YuraLk/teca_server/internal/service/calculation/properties_service"
+	"github.com/YuraLk/teca_server/internal/service/calculation/warning_service"
 
 	"github.com/gin-gonic/gin"
 )

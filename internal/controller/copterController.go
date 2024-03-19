@@ -3,7 +3,7 @@ package controller
 import (
 	request "github.com/YuraLk/teca_server/internal/dtos/copter_dtos/request"
 	"github.com/YuraLk/teca_server/internal/exeptions"
-	copter_service "github.com/YuraLk/teca_server/internal/service/calculation_service/copter_service"
+	copter_service "github.com/YuraLk/teca_server/internal/service/calculation/copter_service"
 	"github.com/YuraLk/teca_server/internal/utils"
 	"github.com/gin-gonic/gin"
 )
