@@ -3,6 +3,7 @@ package service
 import (
 	"math"
 
+	"github.com/YuraLk/teca_server/internal/consts"
 	"github.com/YuraLk/teca_server/internal/database/postgres"
 	"github.com/YuraLk/teca_server/internal/dtos"
 	"github.com/YuraLk/teca_server/internal/dtos/copter"
@@ -89,10 +90,34 @@ func (S ModeProperties) getHoverProperties() (response_properties.HoverPropertie
 	// Частота вращения винта, (Гц)
 	var PropellerSpeed float64 = math.Sqrt(PropellerHangingLift / (float64(S.Props.PropellerProperties.DimensionlessPowerConstant) * S.Calc.EnvironmentProperties.AirDensity * math.Pow(float64(S.Props.PropellerProperties.Diameter), 4)))
 
+	// Обороты при зависании, (Об/Мин)
+	var RPM float64 = PropellerSpeed * 60
+
+	// Угловая скорость пропеллера, (Рад/С)
+	var PropellerAngularSpeed float64 = float64(2) * consts.Pi * PropellerSpeed
+
+	// Обратная ЭДС электродвигателя при нависании, (В)
+	var MotorBackEMF float64 = PropellerAngularSpeed * S.Calc.MotorProperties.PhaseValueOfEMFConst
+
+	// Скорость воздушного потока, проходящего через пропеллер при нависании, (М/С)
+	var AirFlowSpeed float64 = math.Sqrt(PropellerHangingLift / (float64(2) * S.Calc.EnvironmentProperties.AirDensity * S.Calc.PropellerProperties.SweptArea))
+
+	// Мощность, необходимая для вращения пропеллера с заданной частотой, (Вт):
+	var PowerForPropeller float64 = float64(S.Props.PropellerProperties.DimensionlessPowerConstant) * S.Calc.EnvironmentProperties.AirDensity * math.Pow(PropellerSpeed, 3) * math.Pow(float64(S.Props.PropellerProperties.Diameter), 5)
+
+	// КПД в режиме висения
+	var PropellerEfficiency float64 = S.Calc.PropellerProperties.AerodynamicQuality * float64(S.Props.PropellerProperties.Diameter) * math.Sqrt(S.Calc.EnvironmentProperties.AirDensity/PropellerHangingLift)
+
 	warnings := WarningService{}.Append()
 
 	return response_properties.HoverProperties{
-		PropellerHangingLift: PropellerHangingLift,
-		PropellerSpeed:       PropellerSpeed,
+		PropellerHangingLift:  PropellerHangingLift,
+		PropellerSpeed:        PropellerSpeed,
+		RPM:                   RPM,
+		PropellerAngularSpeed: PropellerAngularSpeed,
+		MotorBackEMF:          MotorBackEMF,
+		AirFlowSpeed:          AirFlowSpeed,
+		PowerForPropeller:     PowerForPropeller,
+		PropellerEfficiency:   PropellerEfficiency,
 	}, warnings
 }
