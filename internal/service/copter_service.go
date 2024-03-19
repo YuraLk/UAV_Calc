@@ -106,7 +106,7 @@ func (S ModeProperties) getHoverProperties() (response_properties.HoverPropertie
 	var PowerForPropeller float64 = float64(S.Props.PropellerProperties.DimensionlessPowerConstant) * S.Calc.EnvironmentProperties.AirDensity * math.Pow(PropellerSpeed, 3) * math.Pow(float64(S.Props.PropellerProperties.Diameter), 5)
 
 	// КПД в режиме висения
-	var PropellerEfficiency float64 = S.Calc.PropellerProperties.AerodynamicQuality * float64(S.Props.PropellerProperties.Diameter) * math.Sqrt(S.Calc.EnvironmentProperties.AirDensity/PropellerHangingLift)
+	var PropellerEfficiency float64
 
 	warnings := WarningService{}.Append()
 
