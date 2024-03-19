@@ -12,13 +12,15 @@ import (
 	"gorm.io/gorm"
 )
 
+type TokenService struct{}
+
 type Claims struct {
 	// Объединение типов в одном
 	user_dtos.UserDTO
 	jwt.StandardClaims
 }
 
-func GenerateTokens(dto user_dtos.UserDTO) (string, string, error) {
+func (TokenService) Generate(dto user_dtos.UserDTO) (string, string, error) {
 	// fmt.Print(data)
 	accessClaims := Claims{
 		UserDTO: dto,
@@ -49,7 +51,7 @@ func GenerateTokens(dto user_dtos.UserDTO) (string, string, error) {
 }
 
 // Проверка подлинности и срока годности токенов
-func ValidateRefreshToken(tokenString string) (*Claims, error) {
+func (TokenService) ValidateRefresh(tokenString string) (*Claims, error) {
 	// Парсинг токена
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.Cfg.JWT.JWTRefreshKey), nil
@@ -72,7 +74,7 @@ func ValidateRefreshToken(tokenString string) (*Claims, error) {
 	return claims, nil
 }
 
-func ValidateAccessToken(tokenString string) (*Claims, error) {
+func (TokenService) ValidateAccess(tokenString string) (*Claims, error) {
 	// Парсинг токена
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.Cfg.JWT.JWTAccessKey), nil
@@ -96,7 +98,7 @@ func ValidateAccessToken(tokenString string) (*Claims, error) {
 }
 
 // Ищем старую сессию или создаем новую
-func SaveToken(refreshToken string, userId uint, device string) error {
+func (TokenService) Save(refreshToken string, userId uint, device string) error {
 	var session models.Session
 	if err := postgres.DB.Where("user_id = ? AND device = ?", userId, device).First(&session).Error; err != nil {
 		// Если ошибка связана с провалом поиска записи
@@ -122,7 +124,7 @@ func SaveToken(refreshToken string, userId uint, device string) error {
 	return nil
 }
 
-func RemoveToken(token string) error {
+func (TokenService) Remove(token string) error {
 	if err := postgres.DB.Where("refresh_token = ?", token).Delete(&models.Session{}).Error; err != nil {
 		return err
 	}

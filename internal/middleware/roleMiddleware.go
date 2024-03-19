@@ -20,7 +20,7 @@ func RoleMiddleware(roles []string) gin.HandlerFunc {
 
 		token := strings.Split(authorizationHeader, " ")[1]
 
-		data, err := service.ValidateAccessToken(token)
+		data, err := service.TokenService{}.ValidateAccess(token)
 		if err != nil {
 			exeptions.UnauthorizedError(c, err)
 			return

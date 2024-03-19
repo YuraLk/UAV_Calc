@@ -14,27 +14,32 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CalculateCopterProperties(c *gin.Context, props request.CalculateCopter) (response.CopterResponse, error) {
+type CopterService struct {
+	C     *gin.Context
+	Props request.CalculateCopter
+}
+
+func (S CopterService) CopterProperties() (response.CopterResponse, error) {
 
 	// Навесное оборудование
-	var attachments = props.AttachmentsProperties
+	var attachments = S.Props.AttachmentsProperties
 	// ESC
-	var esc = props.ControllerProperties
+	var esc = S.Props.ControllerProperties
 	// Внешняя среда
-	var environment = props.EnvironmentProperties
+	var environment = S.Props.EnvironmentProperties
 	// Мотор
-	var motor = props.MotorProperties
+	var motor = S.Props.MotorProperties
 	// Рама
-	var frame = props.FrameProperties
+	var frame = S.Props.FrameProperties
 	// Пропеллер
-	var propeller = props.PropellerProperties
+	var propeller = S.Props.PropellerProperties
 	// Аккумулятор
-	var battery = props.BatteryProperties
+	var battery = S.Props.BatteryProperties
 
 	// Ищем композит аккумулятора с ВАХ
 	var composit models.Composit
 	if err := postgres.DB.Where("id = ?", battery.CompositId).First(&composit).Error; err != nil {
-		exeptions.InternalServerError(c, err)
+		exeptions.InternalServerError(S.C, err)
 		return response.CopterResponse{}, err
 	}
 
@@ -44,7 +49,7 @@ func CalculateCopterProperties(c *gin.Context, props request.CalculateCopter) (r
 	// Вычисляем параметры батареи
 	battProps, err := properties_service.GetBatteryProperties(battery, composit)
 	if err != nil {
-		exeptions.InternalServerError(c, err)
+		exeptions.InternalServerError(S.C, err)
 		return response.CopterResponse{}, err
 	}
 	// Вычисляем параметры ESC
@@ -60,7 +65,7 @@ func CalculateCopterProperties(c *gin.Context, props request.CalculateCopter) (r
 	generalProps := properties_service.GetGeneralProperties(frame, attachments, battProps.Mass, esc.Mass, propProps.Mass, motorProps.Mass)
 
 	// Вычисляем параметры для режима зависания
-	hoverProps, hoverWarn := hover_service.GetHoverProperties(props, copter_dtos.StandartProperties{
+	hoverProps, hoverWarn := hover_service.GetHoverProperties(S.Props, copter_dtos.StandartProperties{
 		EnvironmentProperties: envProps,
 		BatteryProperties:     battProps,
 		PropellerProperties:   propProps,

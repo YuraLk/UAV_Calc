@@ -11,11 +11,9 @@ import (
 	dtos "github.com/YuraLk/teca_server/internal/dtos/battery_dtos"
 )
 
-func replaceCommaWithDot(str string) string {
-	return strings.ReplaceAll(str, ",", ".")
-}
+type FileService struct{}
 
-func ParseTableFromFile(file *multipart.FileHeader) ([]dtos.BatteryDto, error) {
+func (FileService) ParseTableFromFile(file *multipart.FileHeader) ([]dtos.BatteryDto, error) {
 
 	// Открываем файл
 	src, err := file.Open()
@@ -47,12 +45,12 @@ func ParseTableFromFile(file *multipart.FileHeader) ([]dtos.BatteryDto, error) {
 		}
 
 		// Если в строке есть запятая, то она не может быть преобразована в число
-		SmoothedVoltage, err := strconv.ParseFloat(replaceCommaWithDot(record[1]), 64) // Преобразуем в число
+		SmoothedVoltage, err := strconv.ParseFloat(strings.ReplaceAll(record[1], ",", "."), 64) // Преобразуем в число
 		if err != nil {
 			continue
 		}
 
-		LoadVoltage, err := strconv.ParseFloat(replaceCommaWithDot(record[2]), 64) // Преобразуем в число
+		LoadVoltage, err := strconv.ParseFloat(strings.ReplaceAll(record[2], ",", "."), 64) // Преобразуем в число
 		if err != nil {
 			continue
 		}

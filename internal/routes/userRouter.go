@@ -6,19 +6,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UserRouter(router *gin.RouterGroup) {
+type UserRouter struct {
+	Prefix *gin.RouterGroup
+}
 
-	group := router.Group("/user")
+func (S UserRouter) Router() {
 
-	group.POST("/register", controller.Register)
+	group := S.Prefix.Group("/user")
 
-	group.POST("/auth", controller.Auth)
+	group.POST("/register", controller.UserController{}.Register)
 
-	group.POST("/logout", middleware.AuthMiddleware(), controller.Logout)
+	group.POST("/auth", controller.UserController{}.Auth)
 
-	group.GET("/", middleware.RoleMiddleware([]string{"ADMIN"}), controller.GetUsers)
+	group.POST("/logout", middleware.AuthMiddleware(), controller.UserController{}.Logout)
 
-	group.GET("/refresh", controller.Refresh)
+	group.GET("/", middleware.RoleMiddleware([]string{"ADMIN"}), controller.UserController{}.Get)
 
-	group.PUT("/", middleware.AuthMiddleware(), controller.UpdateUser)
+	group.GET("/refresh", controller.UserController{}.Refresh)
+
+	group.PUT("/", middleware.AuthMiddleware(), controller.UserController{}.UpdateUser)
 }

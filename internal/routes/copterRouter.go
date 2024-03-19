@@ -6,9 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CopterRouter(router *gin.RouterGroup) {
+type CopterRouter struct {
+	Prefix *gin.RouterGroup
+}
 
-	group := router.Group("/copter")
+func (S CopterRouter) Router() {
 
-	group.POST("/", middleware.AuthMiddleware(), controller.CalculateCopterProperties)
+	group := S.Prefix.Group("/copter")
+
+	group.POST("/", middleware.AuthMiddleware(), controller.CopterController{}.Get)
 }

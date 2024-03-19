@@ -14,13 +14,13 @@ func AuthMiddleware() gin.HandlerFunc {
 		authorizationHeader := c.GetHeader("Authorization")
 
 		if authorizationHeader == "" {
-			exeptions.UnauthorizedError(c, errors.New("Header value not found"))
+			exeptions.UnauthorizedError(c, errors.New("header value not found"))
 			return
 		}
 
 		token := strings.Split(authorizationHeader, " ")[1]
 
-		data, err := service.ValidateAccessToken(token)
+		data, err := service.TokenService{}.ValidateAccess(token)
 		if err != nil {
 			exeptions.UnauthorizedError(c, err)
 			return

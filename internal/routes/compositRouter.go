@@ -6,12 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CompositRouter(router *gin.RouterGroup) {
+type CompositRouter struct {
+	Prefix *gin.RouterGroup
+}
 
-	group := router.Group("/composit")
+func (S CompositRouter) Router() {
 
-	group.GET("/", middleware.AuthMiddleware(), controller.GetComposits)
-	group.POST("/", middleware.RoleMiddleware([]string{"ADMIN"}), controller.CreateComposit)
-	group.PUT("/", middleware.RoleMiddleware([]string{"ADMIN"}), controller.UpdateComposit)
-	group.DELETE("/:id", middleware.RoleMiddleware([]string{"ADMIN"}), controller.DeleteComposit)
+	group := S.Prefix.Group("/composit")
+
+	group.GET("/", middleware.AuthMiddleware(), controller.CompositController{}.Get)
+	group.POST("/", middleware.RoleMiddleware([]string{"ADMIN"}), controller.CompositController{}.Create)
+	group.PUT("/", middleware.RoleMiddleware([]string{"ADMIN"}), controller.CompositController{}.Update)
+	group.DELETE("/:id", middleware.RoleMiddleware([]string{"ADMIN"}), controller.CompositController{}.Delete)
 }

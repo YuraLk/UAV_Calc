@@ -13,12 +13,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetUsers(c *gin.Context) {
-	users := service.GetUsers(c)
+type UserController struct{}
+
+func (UserController) Get(c *gin.Context) {
+	users := service.UserService{C: c}.Get()
 	c.JSON(200, &users)
 }
 
-func Auth(c *gin.Context) {
+func (UserController) Auth(c *gin.Context) {
 	var req user_dtos.Login
 
 	// Проверка валидации
@@ -31,7 +33,7 @@ func Auth(c *gin.Context) {
 	// Извлекаем данные из тела application/json
 	c.ShouldBindJSON(&req)
 
-	dto, tokens, err := service.Auth(c, req.Email, req.Password, req.Device)
+	dto, tokens, err := service.UserService{C: c}.Auth(req.Email, req.Password, req.Device)
 	if err == nil {
 		// Помещаем refresh в http cookie
 		c.SetCookie("refreshToken", tokens.Refresh, int(time.Hour.Seconds()*24*30), "/", config.Cfg.HTTPServer.Host, false, true)
@@ -42,7 +44,7 @@ func Auth(c *gin.Context) {
 }
 
 // Функция регистрации
-func Register(c *gin.Context) {
+func (UserController) Register(c *gin.Context) {
 	var req user_dtos.Register
 
 	// Проверка валидации
@@ -55,7 +57,7 @@ func Register(c *gin.Context) {
 	// Извлекаем данные из тела application/json
 	c.ShouldBindJSON(&req)
 
-	dto, tokens, err := service.Register(c, req.Name, req.Email, req.Phone, req.Password, req.Device)
+	dto, tokens, err := service.UserService{C: c}.Register(req.Name, req.Email, req.Phone, req.Password, req.Device)
 	if err == nil {
 		// Помещаем refresh в http cookie
 		c.SetCookie("refreshToken", tokens.Refresh, int(time.Hour.Seconds()*24*30), "/", config.Cfg.HTTPServer.Host, false, true)
@@ -65,7 +67,7 @@ func Register(c *gin.Context) {
 }
 
 // Обновлние токена при сгорании старого
-func Refresh(c *gin.Context) {
+func (UserController) Refresh(c *gin.Context) {
 	// Получаем Refresh - токен
 	refreshToken, err := c.Cookie("refreshToken")
 	if err != nil {
@@ -73,7 +75,7 @@ func Refresh(c *gin.Context) {
 		return
 	}
 
-	dto, tokens, err := service.Refresh(c, refreshToken)
+	dto, tokens, err := service.UserService{C: c}.Refresh(refreshToken)
 	if err == nil {
 		// Помещаем новый Refresh - токен в Cookie
 		c.SetCookie("refreshToken", tokens.Refresh, int(time.Hour.Seconds()*24*30), "/", config.Cfg.HTTPServer.Host, false, true)
@@ -84,7 +86,7 @@ func Refresh(c *gin.Context) {
 
 }
 
-func UpdateUser(c *gin.Context) {
+func (UserController) UpdateUser(c *gin.Context) {
 	var req user_dtos.UpdateUser
 
 	// Проверка валидации
@@ -111,7 +113,7 @@ func UpdateUser(c *gin.Context) {
 	// Извлекаем данные из тела application/json
 	c.ShouldBindJSON(&req)
 
-	dto, tokens, err := service.UpdateUser(c, data.Id, req.Name, req.Email, req.Phone, req.Device)
+	dto, tokens, err := service.UserService{}.UpdateUser(data.Id, req.Name, req.Email, req.Phone, req.Device)
 	if err == nil {
 		// Помещаем новый Refresh - токен в Cookie
 		c.SetCookie("refreshToken", tokens.Refresh, int(time.Hour.Seconds()*24*30), "/", config.Cfg.HTTPServer.Host, false, true)
@@ -121,7 +123,7 @@ func UpdateUser(c *gin.Context) {
 	}
 }
 
-func Logout(c *gin.Context) {
+func (UserController) Logout(c *gin.Context) {
 	// Получаем Refresh - токен
 	refreshToken, err := c.Cookie("refreshToken")
 	if err != nil {
@@ -129,7 +131,8 @@ func Logout(c *gin.Context) {
 		return
 	}
 
-	if err := service.Logout(c, refreshToken); err == nil {
+	err = service.UserService{}.Logout(refreshToken)
+	if err == nil {
 		// Устанавливаем cookie с нулевым сроком действия (удаляем)
 		c.SetCookie("refreshToken", "", 0, "/", config.Cfg.HTTPServer.Host, false, true)
 		c.JSON(200, gin.H{})

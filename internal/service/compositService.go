@@ -12,36 +12,40 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetComposits(c *gin.Context) ([]models.Composit, error) {
+type CompositService struct {
+	C *gin.Context
+}
+
+func (S CompositService) Get() ([]models.Composit, error) {
 	composits := []models.Composit{}
 	if err := postgres.DB.Find(&composits).Error; err != nil {
-		exeptions.InternalServerError(c, err)
+		exeptions.InternalServerError(S.C, err)
 		return []models.Composit{}, err
 	}
 
 	return composits, nil
 }
 
-func CreateComposit(c *gin.Context, Name string, File *multipart.FileHeader) (models.Composit, error) {
+func (S CompositService) Create(Name string, File *multipart.FileHeader) (models.Composit, error) {
 	var exist models.Composit // Сюда помещаем рузультаты поиска
 	// Проверяем уникальность названия
 	if err := postgres.DB.Where("name = ?", Name).First(&exist).Error; err == nil {
 		err := errors.New("value is not unique")
-		exeptions.BadRequest(c, fmt.Sprintf("Название %s уже существует!", Name), err)
+		exeptions.BadRequest(S.C, fmt.Sprintf("Название %s уже существует!", Name), err)
 		return models.Composit{}, err
 	}
 
-	CVC, err := ParseTableFromFile(File)
+	CVC, err := FileService{}.ParseTableFromFile(File)
 
 	if err != nil {
-		exeptions.BadRequest(c, "Ошибка чтения файла!", err)
+		exeptions.BadRequest(S.C, "Ошибка чтения файла!", err)
 		return models.Composit{}, err
 	}
 
 	// Преобразование массива структур в JSON
 	CVCJson, err := json.Marshal(CVC)
 	if err != nil {
-		exeptions.BadRequest(c, "Ошибка преобразования данных в JSON!", err)
+		exeptions.BadRequest(S.C, "Ошибка преобразования данных в JSON!", err)
 		return models.Composit{}, err
 	}
 
@@ -53,17 +57,17 @@ func CreateComposit(c *gin.Context, Name string, File *multipart.FileHeader) (mo
 
 	// Сохраняем ВАХ аккумулятора в БД
 	if err := postgres.DB.Create(&composit).Error; err != nil {
-		exeptions.InternalServerError(c, err)
+		exeptions.InternalServerError(S.C, err)
 		return models.Composit{}, err
 	}
 
 	return composit, nil
 }
 
-func UpdateComposit(c *gin.Context, Id string, Name string, File *multipart.FileHeader) (models.Composit, error) {
+func (S CompositService) Update(Id string, Name string, File *multipart.FileHeader) (models.Composit, error) {
 	var composit models.Composit
 	if err := postgres.DB.Where("id = ?", Id).First(&composit).Error; err != nil {
-		exeptions.NotFound(c, "Запись не найдена!")
+		exeptions.NotFound(S.C, "Запись не найдена!")
 		return models.Composit{}, err
 	}
 
@@ -71,21 +75,21 @@ func UpdateComposit(c *gin.Context, Id string, Name string, File *multipart.File
 	// Проверяем уникальность названия
 	if err := postgres.DB.Where("name = ?", Name).First(&exist).Error; err == nil {
 		err := errors.New("value is not unique")
-		exeptions.BadRequest(c, fmt.Sprintf("Название %s уже существует!", Name), err)
+		exeptions.BadRequest(S.C, fmt.Sprintf("Название %s уже существует!", Name), err)
 		return models.Composit{}, err
 	}
 
-	CVC, err := ParseTableFromFile(File)
+	CVC, err := FileService{}.ParseTableFromFile(File)
 
 	if err != nil {
-		exeptions.BadRequest(c, "Ошибка чтения файла!", err)
+		exeptions.BadRequest(S.C, "Ошибка чтения файла!", err)
 		return models.Composit{}, err
 	}
 
 	// Преобразование массива структур в JSON
 	CVCJson, err := json.Marshal(CVC)
 	if err != nil {
-		exeptions.BadRequest(c, "Ошибка преобразования данных в JSON!", err)
+		exeptions.BadRequest(S.C, "Ошибка преобразования данных в JSON!", err)
 		return models.Composit{}, err
 	}
 
@@ -97,16 +101,16 @@ func UpdateComposit(c *gin.Context, Id string, Name string, File *multipart.File
 
 	// Сохраняем ВАХ аккумулятора в БД
 	if err := postgres.DB.Save(&updateComposit).Error; err != nil {
-		exeptions.InternalServerError(c, err)
+		exeptions.InternalServerError(S.C, err)
 		return models.Composit{}, err
 	}
 
 	return updateComposit, nil
 }
 
-func DeleteComposit(c *gin.Context, Id string) error {
+func (S CompositService) Delete(Id string) error {
 	if err := postgres.DB.Unscoped().Delete(&models.Composit{}, Id).Error; err != nil {
-		exeptions.InternalServerError(c, err)
+		exeptions.InternalServerError(S.C, err)
 		return err
 	}
 	return nil

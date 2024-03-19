@@ -8,14 +8,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetComposits(c *gin.Context) {
-	composits, err := service.GetComposits(c)
+type CompositController struct{}
+
+func (CompositController) Get(c *gin.Context) {
+	composits, err := service.CompositService{C: c}.Get()
 	if err == nil {
 		c.JSON(200, &composits)
 	}
 }
 
-func CreateComposit(c *gin.Context) {
+func (CompositController) Create(c *gin.Context) {
 	// Название композита
 	name := c.PostForm("name")
 	// Таблица с ВАХ аккумулятора
@@ -41,13 +43,13 @@ func CreateComposit(c *gin.Context) {
 	}
 
 	// Передаем проверенные данные в сервис
-	Composit, err := service.CreateComposit(c, name, file)
+	Composit, err := service.CompositService{C: c}.Create(name, file)
 	if err == nil {
 		c.JSON(200, &Composit)
 	}
 }
 
-func UpdateComposit(c *gin.Context) {
+func (CompositController) Update(c *gin.Context) {
 	id := c.PostForm("id")
 	name := c.PostForm("name")
 	// Таблица с ВАХ аккумулятора
@@ -79,16 +81,16 @@ func UpdateComposit(c *gin.Context) {
 
 	// Передаем проверенные данные в сервис
 
-	Composit, err := service.UpdateComposit(c, id, name, file)
+	Composit, err := service.CompositService{C: c}.Update(id, name, file)
 	if err == nil {
 		c.JSON(200, &Composit)
 	}
 }
 
-func DeleteComposit(c *gin.Context) {
+func (CompositController) Delete(c *gin.Context) {
 	id := c.Param("id")
-
-	if err := service.DeleteComposit(c, id); err == nil {
+	err := service.CompositService{C: c}.Delete(id)
+	if err == nil {
 		c.JSON(200, gin.H{})
 	}
 }
