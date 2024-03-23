@@ -148,6 +148,9 @@ func (S ModeProperties) GetHoverProperties() (response_properties.HoverPropertie
 	// Время зависания, (Мин)
 	var TimeOfFlight float64 = (float64(S.Calc.BatteryProperties.UsableCapacity) / AverageCurrentConsumption) * 60
 
+	// Температура мотора при зависании, (°С)
+	var MotorTemperature float64 = TemperatureService(S).GetMotorTemperature(MotorAverageCurrent)
+
 	// Проверка маневренности ЛА
 	maneuverabilityCheck := WarningService{}.ManeuverabilityCheck(GasLinear)
 
@@ -174,5 +177,6 @@ func (S ModeProperties) GetHoverProperties() (response_properties.HoverPropertie
 		MotorAverageCurrent:   MotorAverageCurrent,
 		MotorVoltageUnderLoad: MotorVoltageUnderLoad,
 		TimeOfFlight:          TimeOfFlight,
+		MotorTemperature:      MotorTemperature,
 	}, warnings
 }

@@ -11,6 +11,8 @@ type MotorProperties struct {
 	MomentInertia      float64  `json:"momentInertia" binding:"required,gt=0"`      // Момент инерции двигателя, (Кг/м^2)
 	ElectricInductance float64  `json:"electricInductance" binding:"required,gt=0"` // Электрическая индуктивность, (Генри)
 	MaxPower           uint     `json:"maxPower" binding:"required,gt=0"`           // Максимальная мощность, (Вт)
+	Diameter           float32  `json:"diameter" binding:"required,gt=0"`           // Диаметр (М)
+	Height             float32  `json:"height" binding:"required,gt=0"`             // Высота (М)
 }
 
 type Currents struct {
