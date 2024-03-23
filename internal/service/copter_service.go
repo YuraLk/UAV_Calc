@@ -63,8 +63,17 @@ func (S CopterService) GetProperties() (copter.CopterResponse, error) {
 		GeneralProperties:     generalProps,
 	}}.GetHoverProperties()
 
+	// Вычисляем максимальные параметры
+	maxProps, maxWarn := ModeProperties{Props: S.Props, Calc: copter.StandartProperties{
+		EnvironmentProperties: envProps,
+		BatteryProperties:     battProps,
+		PropellerProperties:   propProps,
+		MotorProperties:       motorProps,
+		GeneralProperties:     generalProps,
+	}}.GetMaxProperties()
+
 	// Собираем предупреждения
-	warnings := WarningService{}.AppendArrays(envWarn, escWarn, propWarn, motorWarn, hoverWarn)
+	warnings := WarningService{}.AppendArrays(envWarn, escWarn, propWarn, motorWarn, hoverWarn, maxWarn)
 
 	// Возвращаем расчитанные параметры
 	var response copter.CopterResponse = copter.CopterResponse{
@@ -75,6 +84,7 @@ func (S CopterService) GetProperties() (copter.CopterResponse, error) {
 			MotorProperties:       motorProps,
 			GeneralProperties:     generalProps,
 			HoverProperties:       hoverProps,
+			MaxProperties:         maxProps,
 		},
 		Warings: warnings,
 	}
@@ -179,4 +189,12 @@ func (S ModeProperties) GetHoverProperties() (response_properties.HoverPropertie
 		TimeOfFlight:          TimeOfFlight,
 		MotorTemperature:      MotorTemperature,
 	}, warnings
+}
+
+// МАКСИМАЛЬНЫЙ РЕЖИМ
+func (S ModeProperties) GetMaxProperties() (response_properties.MaxProperties, *[]dtos.WarningDto) {
+
+	warnings := WarningService{}.Append()
+
+	return response_properties.MaxProperties{}, warnings
 }
