@@ -55,9 +55,20 @@ func (WarningService) ControllerVoltageCheck(ControllerVoltage float64, BatteryV
 func (WarningService) ManeuverabilityCheck(GasLinear float64) *dtos.WarningDto {
 	if GasLinear >= 0.8 {
 		return &dtos.WarningDto{
-			Level: 1,
+			Level: 2,
 			Field: "Motor.Power",
 			Text:  "Для минимальной маневренности значение газа должно быть меньше 80%.",
+		}
+	}
+	return nil
+}
+
+func (WarningService) MotorPowerCheck(AvailablePower float64, HoverPower float64) *dtos.WarningDto {
+	if AvailablePower <= HoverPower {
+		return &dtos.WarningDto{
+			Level: 1,
+			Field: "Motor.Power",
+			Text:  "Доступной энергии недостаточно для зависания.",
 		}
 	}
 	return nil

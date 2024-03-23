@@ -151,7 +151,10 @@ func (S ModeProperties) GetHoverProperties() (response_properties.HoverPropertie
 	// Проверка маневренности ЛА
 	maneuverabilityCheck := WarningService{}.ManeuverabilityCheck(GasLinear)
 
-	warnings := WarningService{}.Append(maneuverabilityCheck)
+	// Проверка доступности энергии для висения
+	motorPowerCheck := WarningService{}.MotorPowerCheck(S.Calc.MotorProperties.MaxPowerOfMotorOnBoard, MotorElectricalPower)
+
+	warnings := WarningService{}.Append(maneuverabilityCheck, motorPowerCheck)
 
 	return response_properties.HoverProperties{
 		PropellerHangingLift:  PropellerHangingLift,
