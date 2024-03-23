@@ -6,6 +6,7 @@ import (
 
 type WarningService struct{}
 
+// Функция для объединения массивов предупреждений из сервисов
 func (WarningService) AppendArrays(arrays ...*[]dtos.WarningDto) []dtos.WarningDto {
 	var warnings []dtos.WarningDto
 	for _, warning := range arrays {
@@ -16,6 +17,7 @@ func (WarningService) AppendArrays(arrays ...*[]dtos.WarningDto) []dtos.WarningD
 	return warnings
 }
 
+// Функция для объединения предупреждений
 func (WarningService) Append(array ...*dtos.WarningDto) *[]dtos.WarningDto {
 	var warnings []dtos.WarningDto
 	for _, warning := range array {
@@ -45,6 +47,17 @@ func (WarningService) ControllerVoltageCheck(ControllerVoltage float64, BatteryV
 			Level: 2,
 			Field: "Controller.Voltage",
 			Text:  "Номинальное напряжение аккумулятора превышает номинальное напряжение регулятора скорости (ESC). Рекомендуем снизить количество последовательно соединенных ячеек аккумулятора (S) или подобрать ESC с большим номинальным напряжением.",
+		}
+	}
+	return nil
+}
+
+func (WarningService) ManeuverabilityCheck(GasLinear float64) *dtos.WarningDto {
+	if GasLinear >= 0.8 {
+		return &dtos.WarningDto{
+			Level: 1,
+			Field: "Motor.Power",
+			Text:  "Для минимальной маневренности значение газа должно быть меньше 80%.",
 		}
 	}
 	return nil

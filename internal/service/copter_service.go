@@ -43,13 +43,13 @@ func (S CopterService) GetProperties() (copter.CopterResponse, error) {
 		return copter.CopterResponse{}, err
 	}
 	// Вычисляем параметры ESC
-	escWarn := ControllerService{}.GetProperties(S.Props.ControllerProperties, battProps.BatteryVoltage)
+	escWarn := ControllerService{}.GetProperties(S.Props.ControllerProperties, battProps.Voltage)
 
 	// Вычисляем параметры пропеллера
 	propProps, propWarn := PropellerService{}.GetProperties(S.Props.PropellerProperties, S.Props.FrameProperties)
 
 	// Вычисляем параметры мотора
-	motorProps, motorWarn := MotorService{}.GetProperties(S.Props.MotorProperties, S.Props.FrameProperties)
+	motorProps, motorWarn := MotorService{}.GetProperties(S.Props.MotorProperties, S.Props.FrameProperties, battProps)
 
 	// Вычисление общих параметров для обоих режимов полета
 	generalProps := GeneralService{}.GetProperties(S.Props.FrameProperties, S.Props.AttachmentsProperties, battProps.Mass, S.Props.ControllerProperties.Mass, propProps.Mass, motorProps.Mass)
@@ -61,7 +61,7 @@ func (S CopterService) GetProperties() (copter.CopterResponse, error) {
 		PropellerProperties:   propProps,
 		MotorProperties:       motorProps,
 		GeneralProperties:     generalProps,
-	}}.getHoverProperties()
+	}}.GetHoverProperties()
 
 	// Собираем предупреждения
 	warnings := WarningService{}.AppendArrays(envWarn, escWarn, propWarn, motorWarn, hoverWarn)
@@ -82,7 +82,8 @@ func (S CopterService) GetProperties() (copter.CopterResponse, error) {
 	return response, nil
 }
 
-func (S ModeProperties) getHoverProperties() (response_properties.HoverProperties, *[]dtos.WarningDto) {
+// РЕЖИМ ЗАВИСАНИЯ
+func (S ModeProperties) GetHoverProperties() (response_properties.HoverProperties, *[]dtos.WarningDto) {
 
 	// Подъемная сила каждого пропеллера, необходимая для поддержания ЛА в воздухе, (Н):
 	var PropellerHangingLift float64 = float64(S.Calc.GeneralProperties.Weight) / float64(S.Props.FrameProperties.PropellersNumber)
@@ -99,16 +100,58 @@ func (S ModeProperties) getHoverProperties() (response_properties.HoverPropertie
 	// Обратная ЭДС электродвигателя при нависании, (В)
 	var MotorBackEMF float64 = PropellerAngularSpeed * S.Calc.MotorProperties.PhaseValueOfEMFConst
 
-	// Скорость воздушного потока, проходящего через пропеллер при нависании, (М/С)
-	var AirFlowSpeed float64 = math.Sqrt(PropellerHangingLift / (float64(2) * S.Calc.EnvironmentProperties.AirDensity * S.Calc.PropellerProperties.SweptArea))
-
 	// Мощность, необходимая для вращения пропеллера с заданной частотой, (Вт):
 	var PowerForPropeller float64 = float64(S.Props.PropellerProperties.DimensionlessPowerConstant) * S.Calc.EnvironmentProperties.AirDensity * math.Pow(PropellerSpeed, 3) * math.Pow(float64(S.Props.PropellerProperties.Diameter), 5)
 
-	// КПД в режиме висения
-	var PropellerEfficiency float64
+	// Коэффицент совершенства пропеллера в режиме висения и условный КПД пропеллера в режиме висения
+	var AerodynamicCleanness float64 = math.Sqrt(float64(2)/consts.Pi) * S.Calc.PropellerProperties.AerodynamicQuality
 
-	warnings := WarningService{}.Append()
+	// Скорость подсасывания воздуха, (М/С)
+	var AirSuctionSpeed float64 = math.Sqrt((float64(2)*PropellerHangingLift)/(consts.Pi*S.Calc.EnvironmentProperties.AirDensity)) / float64(S.Props.PropellerProperties.Diameter)
+
+	// Скорость отбрасывания воздуха, (М/С)
+	var AirEjectionSpeed float64 = 2 * AirSuctionSpeed
+
+	// Максимальная эффективность, (Н/Вт)
+	var MaximumEfficiency float64 = 1 / AirSuctionSpeed
+
+	// Реальная эффективность пропеллера, (Н/Вт)
+	var RealEfficiency float64 = MaximumEfficiency * AerodynamicCleanness
+
+	// Механическая мощность электродвигателя, необходимая для нависания, (Вт)
+	var MotorMechanicalPower float64 = AerodynamicCleanness * PowerForPropeller
+
+	// Электрическая мощность электродвигателя, необходимая для нависания, (Вт)
+	var MotorElectricalPower float64 = float64(S.Props.MotorProperties.Efficiency) * MotorMechanicalPower
+
+	// Газ линейный при висении, (%)
+	var GasLinear float64 = MotorElectricalPower / S.Calc.MotorProperties.MaxPowerOfMotorOnBoard
+
+	// Электрическая мощность силовой установки на нависании, (Вт)
+	var ElectricalPowerOfPowerPlant float64 = MotorElectricalPower * float64(S.Props.FrameProperties.PropellersNumber)
+
+	// Электрическая мощность, потребляемая всеми элементами цепи на нависании, (Вт)
+	var TotalElectricalPower float64 = ElectricalPowerOfPowerPlant + float64(S.Props.AttachmentsProperties.PowerConsumption)
+
+	// Средний ток потребления при мощности, необходимой для зависания, (А)
+	var AverageCurrentConsumption float64 = BatteryService{}.GetAverageCurrent(TotalElectricalPower, S.Calc.BatteryProperties.CVCRange)
+
+	// Средний ток потребления силовой установки при зависании, (А)
+	var AverageCurrentOfPowerPlant float64 = BatteryService{}.GetAverageCurrent(ElectricalPowerOfPowerPlant, S.Calc.BatteryProperties.CVCRange)
+
+	// Средний ток потребления на один двигатель при зависании, (А)
+	var MotorAverageCurrent float64 = AverageCurrentOfPowerPlant / float64(S.Props.FrameProperties.PropellersNumber)
+
+	// Напряжение на двигателе под нагрузкой при зависании, (В)
+	var MotorVoltageUnderLoad float64 = S.Calc.BatteryProperties.VoltageUnderLoad - (AverageCurrentConsumption * S.Props.MotorProperties.WindingResistance * S.Calc.MotorProperties.PhaseValueOfEMFConst)
+
+	// Время зависания, (Мин)
+	var TimeOfFlight float64 = (float64(S.Calc.BatteryProperties.UsableCapacity) / AverageCurrentConsumption) * 60
+
+	// Проверка маневренности ЛА
+	maneuverabilityCheck := WarningService{}.ManeuverabilityCheck(GasLinear)
+
+	warnings := WarningService{}.Append(maneuverabilityCheck)
 
 	return response_properties.HoverProperties{
 		PropellerHangingLift:  PropellerHangingLift,
@@ -116,8 +159,17 @@ func (S ModeProperties) getHoverProperties() (response_properties.HoverPropertie
 		RPM:                   RPM,
 		PropellerAngularSpeed: PropellerAngularSpeed,
 		MotorBackEMF:          MotorBackEMF,
-		AirFlowSpeed:          AirFlowSpeed,
 		PowerForPropeller:     PowerForPropeller,
-		PropellerEfficiency:   PropellerEfficiency,
+		AerodynamicCleanness:  AerodynamicCleanness,
+		AirSuctionSpeed:       AirSuctionSpeed,
+		AirEjectionSpeed:      AirEjectionSpeed,
+		MaximumEfficiency:     MaximumEfficiency,
+		RealEfficiency:        RealEfficiency,
+		MotorMechanicalPower:  MotorMechanicalPower,
+		MotorElectricalPower:  MotorElectricalPower,
+		GasLinear:             GasLinear,
+		MotorAverageCurrent:   MotorAverageCurrent,
+		MotorVoltageUnderLoad: MotorVoltageUnderLoad,
+		TimeOfFlight:          TimeOfFlight,
 	}, warnings
 }

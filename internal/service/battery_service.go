@@ -38,6 +38,19 @@ func (BatteryService) GetVoltageCharacteristics(CVC []dtos.BatteryDto, CriticalC
 	return CVCRange, SmoothedVoltage, VoltageUnderLoad
 }
 
+// Расчет средней силы тока из участка ВАХ аккумулятора
+func (BatteryService) GetAverageCurrent(Power float64, CVC []dtos.BatteryDto) float64 {
+	var Current float64
+
+	// Расчитываем силу тока для каждого процента заряда и суммируем
+	for _, value := range CVC {
+		Current += (Power / value.LoadVoltage)
+	}
+
+	return Current / float64(len(CVC))
+
+}
+
 func (BatteryService) GetProperties(battery request_properties.BatteryProperties, composit models.Composit) (response_properties.BatteryProperties, error) {
 	// Общая емкость, (А/Ч)
 	var Capacity float32 = battery.CellCapacity * float32(battery.P) * float32(battery.S)
@@ -69,26 +82,26 @@ func (BatteryService) GetProperties(battery request_properties.BatteryProperties
 	CVCRange, SmoothedCellVoltage, CellVoltageUnderLoad := BatteryService{}.GetVoltageCharacteristics(CVC, CriticalChargeProportion, battery.InitialStateOfCharge)
 
 	// Общее напряжение аккумулятора (В)
-	var BatteryVoltage float64 = SmoothedCellVoltage * float64(battery.S)
+	var Voltage float64 = SmoothedCellVoltage * float64(battery.S)
 
 	// Напряжение аккумулятора под нагрузкой, (В)
-	var BatteryVoltageUnderLoad = CellVoltageUnderLoad * float64(battery.S)
+	var VoltageUnderLoad = CellVoltageUnderLoad * float64(battery.S)
 
 	// Мощность аккумулятора исходя из ВАХ аккумулятора, (Вт * Час)
-	var BatteryPower float64 = float64(Capacity) * BatteryVoltage
+	var Power float64 = float64(Capacity) * Voltage
 
 	// Используемая мощность аккумулятора, (Вт * Час)
-	var BatteryUsablePower float64 = float64(UsableCapacity) * BatteryVoltage
+	var UsablePower float64 = float64(UsableCapacity) * Voltage
 
 	return response_properties.BatteryProperties{
-		CurrentOutput:           CurrentOutput,
-		Capacity:                Capacity,
-		UsableCapacity:          UsableCapacity,
-		Mass:                    Mass,
-		CVCRange:                CVCRange,
-		BatteryVoltage:          BatteryVoltage,
-		BatteryVoltageUnderLoad: BatteryVoltageUnderLoad,
-		BatteryPower:            BatteryPower,
-		BatteryUsablePower:      BatteryUsablePower,
+		CurrentOutput:    CurrentOutput,
+		Capacity:         Capacity,
+		UsableCapacity:   UsableCapacity,
+		Mass:             Mass,
+		CVCRange:         CVCRange,
+		Voltage:          Voltage,
+		VoltageUnderLoad: VoltageUnderLoad,
+		Power:            Power,
+		UsablePower:      UsablePower,
 	}, nil
 }

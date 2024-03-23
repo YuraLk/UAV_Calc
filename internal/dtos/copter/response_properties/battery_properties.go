@@ -5,15 +5,15 @@ import (
 )
 
 type BatteryProperties struct {
-	CurrentOutput           CurrentOutput     `json:"currentOutput"`
-	Capacity                float32           `json:"capacity"`
-	UsableCapacity          float32           `json:"usableCapacity"`
-	Mass                    float32           `json:"mass"`
-	CVCRange                []dtos.BatteryDto `json:"cvcRange"`
-	BatteryVoltage          float64           `json:"batteryVoltage"`
-	BatteryVoltageUnderLoad float64           `json:"batteryVoltageUnderLoad"`
-	BatteryPower            float64           `json:"batteryPower"`
-	BatteryUsablePower      float64           `json:"batteryUsablePower"`
+	CurrentOutput    CurrentOutput     `json:"currentOutput"`
+	Capacity         float32           `json:"capacity"`
+	UsableCapacity   float32           `json:"usableCapacity"`
+	Mass             float32           `json:"mass"`
+	CVCRange         []dtos.BatteryDto `json:"cvcRange"`
+	Voltage          float64           `json:"voltage"`
+	VoltageUnderLoad float64           `json:"voltageUnderLoad"`
+	Power            float64           `json:"power"`
+	UsablePower      float64           `json:"usablePower"`
 }
 
 type CurrentOutput struct {
