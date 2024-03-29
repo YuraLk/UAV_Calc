@@ -18,5 +18,4 @@ type HoverProperties struct {
 	MotorAverageCurrent   float64 `json:"motorAverageCurrent"`
 	MotorVoltageUnderLoad float64 `json:"motorVoltageUnderLoad"`
 	TimeOfFlight          float64 `json:"timeOfFlight"`
-	MotorTemperature      float64 `json:"motorTemperature"`
 }
