@@ -1,0 +1,23 @@
+databaseType = "PostgreSql"
+id = "3ddd0eb1-17f8-42e7-999b-5d1a46d34b19"
+name = "drone_calc"
+
+[flyway]
+locations = ["filesystem:migrations"]
+mixed = true
+outOfOrder = true
+validateMigrationNaming = true
+
+[flyway.check]
+majorTolerance = 0
+
+[flywayDesktop]
+developmentEnvironment = "development"
+schemaModel = "schema-model"
+shadowEnvironment = "shadow"
+
+[redgateCompare]
+filterFile = "filter.rgf"
+
+[redgateCompare.postgresql.options.ignores]
+ignoreNewlinesInTextObjects = "off"

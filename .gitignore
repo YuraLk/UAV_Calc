@@ -1,3 +1,7 @@
-configs
-static
-docs
+.DS_Store
+static/*
+
+/postgres
+/app/docs
+
+*.sh
