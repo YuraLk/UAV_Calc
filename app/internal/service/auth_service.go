@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/YuraLk/drone_calc/backend/internal/database/postgres"
-	user_dtos "github.com/YuraLk/drone_calc/backend/internal/dtos/user"
+	"github.com/YuraLk/drone_calc/backend/internal/dtos/auth/response_properties"
 	"github.com/YuraLk/drone_calc/backend/internal/exeptions"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
@@ -22,7 +22,7 @@ type Tokens struct {
 	Refresh string
 }
 
-func create_dto(ctx context.Context, userId uint, name string, surname string, patronymic string, email string, phone string) (user_dtos.UserDTO, error) {
+func create_dto(ctx context.Context, userId uint, name string, surname string, patronymic string, email string, phone string) (response_properties.AuthDTO, error) {
 
 	var access string
 
@@ -30,7 +30,7 @@ func create_dto(ctx context.Context, userId uint, name string, surname string, p
 	if err := postgres.DB.QueryRow(ctx, "SELECT access FROM accesses WHERE user_id = $1 LIMIT 1", userId).Scan(&access); err != nil {
 		// Если доступа нет
 		if err == pgx.ErrNoRows {
-			return user_dtos.UserDTO{
+			return response_properties.AuthDTO{
 				Id:         userId,
 				Name:       name,
 				Surname:    surname,
@@ -39,11 +39,11 @@ func create_dto(ctx context.Context, userId uint, name string, surname string, p
 				Phone:      phone,
 			}, nil
 		} else {
-			return user_dtos.UserDTO{}, err
+			return response_properties.AuthDTO{}, err
 		}
 		// Если доступ есть
 	} else {
-		return user_dtos.UserDTO{
+		return response_properties.AuthDTO{
 			Id:         userId,
 			Name:       name,
 			Surname:    surname,
@@ -95,7 +95,7 @@ func create_dto(ctx context.Context, userId uint, name string, surname string, p
 // }, nil
 // }
 
-func (S AuthService) Register(ctx context.Context, name string, surname string, patronymic string, email string, phone_number string, password string, device string) (user_dtos.UserDTO, Tokens, error) {
+func (S AuthService) Register(ctx context.Context, name string, surname string, patronymic string, email string, phone_number string, password string, device string) (response_properties.AuthDTO, Tokens, error) {
 
 	var email_is_exists bool
 
@@ -103,14 +103,14 @@ func (S AuthService) Register(ctx context.Context, name string, surname string, 
 	if err := postgres.DB.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1) as is_exists", email).Scan(&email_is_exists); err != nil {
 		if err != pgx.ErrNoRows {
 			exeptions.InternalServerError(S.C, err)
-			return user_dtos.UserDTO{}, Tokens{}, err
+			return response_properties.AuthDTO{}, Tokens{}, err
 		}
 	}
 
 	if email_is_exists {
 		err := errors.New("value is not unique")
 		exeptions.BadRequest(S.C, fmt.Sprintf("Пользователь с электронной почтой %s уже существует!", email), err)
-		return user_dtos.UserDTO{}, Tokens{}, err
+		return response_properties.AuthDTO{}, Tokens{}, err
 	}
 
 	var phone_number_is_exists bool
@@ -118,21 +118,21 @@ func (S AuthService) Register(ctx context.Context, name string, surname string, 
 	if err := postgres.DB.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM users WHERE phone_number = $1) as is_exists", phone_number).Scan(&phone_number_is_exists); err != nil {
 		if err != pgx.ErrNoRows {
 			exeptions.InternalServerError(S.C, err)
-			return user_dtos.UserDTO{}, Tokens{}, err
+			return response_properties.AuthDTO{}, Tokens{}, err
 		}
 	}
 
 	if phone_number_is_exists {
 		err := errors.New("value is not unique")
 		exeptions.BadRequest(S.C, fmt.Sprintf("Пользователь с номером телефона %s уже существует!", phone_number), err)
-		return user_dtos.UserDTO{}, Tokens{}, err
+		return response_properties.AuthDTO{}, Tokens{}, err
 	}
 
 	// Хеширование пароля
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		exeptions.InternalServerError(S.C, err)
-		return user_dtos.UserDTO{}, Tokens{}, err
+		return response_properties.AuthDTO{}, Tokens{}, err
 	}
 
 	var user_id uint
@@ -144,28 +144,28 @@ func (S AuthService) Register(ctx context.Context, name string, surname string, 
 		RETURNING id
 	`, name, surname, patronymic, email, phone_number, hashedPassword).Scan(&user_id); err != nil {
 		exeptions.InternalServerError(S.C, err)
-		return user_dtos.UserDTO{}, Tokens{}, err
+		return response_properties.AuthDTO{}, Tokens{}, err
 	}
 
 	// Проверяем роль пользователя и исходя из роли создаем DTO
 	dto, err := create_dto(ctx, user_id, name, surname, patronymic, email, phone_number)
 	if err != nil {
 		exeptions.InternalServerError(S.C, err)
-		return user_dtos.UserDTO{}, Tokens{}, err
+		return response_properties.AuthDTO{}, Tokens{}, err
 	}
 
 	// Генерируем токены доступа
 	accessToken, refreshToken, err := TokenService{}.Generate(dto)
 	if err != nil {
 		exeptions.InternalServerError(S.C, err)
-		return user_dtos.UserDTO{}, Tokens{}, err
+		return response_properties.AuthDTO{}, Tokens{}, err
 	}
 
 	// Сохраняем токен
 	err = TokenService{}.Save(ctx, refreshToken, user_id, device)
 	if err != nil {
 		exeptions.InternalServerError(S.C, err)
-		return user_dtos.UserDTO{}, Tokens{}, err
+		return response_properties.AuthDTO{}, Tokens{}, err
 	}
 
 	return dto, Tokens{

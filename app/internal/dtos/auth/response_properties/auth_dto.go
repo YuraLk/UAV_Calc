@@ -1,6 +1,6 @@
-package user
+package response_properties
 
-type UserDTO struct {
+type AuthDTO struct {
 	Id         uint    `json:"id"`
 	Name       string  `json:"name"`
 	Surname    string  `json:"surname"`

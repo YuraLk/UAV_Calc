@@ -1,4 +1,4 @@
-package auth
+package request_properties
 
 type RegisterDTO struct {
 	Name       string `json:"name" binding:"required,min=3,max=64"`

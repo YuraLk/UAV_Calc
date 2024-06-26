@@ -8,7 +8,7 @@ import (
 
 	"github.com/YuraLk/drone_calc/backend/internal/configs"
 	"github.com/YuraLk/drone_calc/backend/internal/database/postgres"
-	"github.com/YuraLk/drone_calc/backend/internal/dtos/user"
+	"github.com/YuraLk/drone_calc/backend/internal/dtos/auth/response_properties"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
@@ -18,14 +18,14 @@ type TokenService struct{}
 
 type Claims struct {
 	// Объединение типов в одном
-	user.UserDTO
+	response_properties.AuthDTO
 	jwt.RegisteredClaims
 }
 
-func (TokenService) Generate(dto user.UserDTO) (string, string, error) {
+func (TokenService) Generate(dto response_properties.AuthDTO) (string, string, error) {
 	// fmt.Print(data)
 	accessClaims := Claims{
-		UserDTO: dto,
+		AuthDTO: dto,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 15)), // 15 минут
 		},
@@ -37,7 +37,7 @@ func (TokenService) Generate(dto user.UserDTO) (string, string, error) {
 		return "", "", err
 	}
 	refreshClaims := Claims{
-		UserDTO: dto,
+		AuthDTO: dto,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 14)), // 14 дней
 		},

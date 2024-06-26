@@ -1,4 +1,4 @@
-package auth
+package request_properties
 
 type LoginDTO struct {
 	Email    string `json:"email" binding:"required,email"`

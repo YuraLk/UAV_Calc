@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/YuraLk/drone_calc/backend/internal/configs"
-	"github.com/YuraLk/drone_calc/backend/internal/dtos/auth"
+	"github.com/YuraLk/drone_calc/backend/internal/dtos/auth/request_properties"
 	"github.com/YuraLk/drone_calc/backend/internal/exeptions"
 	"github.com/YuraLk/drone_calc/backend/internal/service"
 	"github.com/YuraLk/drone_calc/backend/internal/utils"
@@ -15,7 +15,7 @@ import (
 type AuthController struct{}
 
 func (AuthController) Auth(c *gin.Context) {
-	var req auth.LoginDTO
+	var req request_properties.LoginDTO
 
 	// Проверка валидации
 	if err := c.ShouldBind(&req); err != nil {
@@ -39,7 +39,7 @@ func (AuthController) Auth(c *gin.Context) {
 
 // Функция регистрации
 func (AuthController) Register(ctx *gin.Context) {
-	var req auth.RegisterDTO
+	var req request_properties.RegisterDTO
 
 	// Проверка валидации
 	if err := ctx.ShouldBind(&req); err != nil {
