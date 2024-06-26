@@ -17,5 +17,5 @@ func main() {
 	// Подключаемся к базе данных
 	postgres.Connect()
 
-	router.Run(configs.Cfg.HTTPServer.Port)
+	router.Run(configs.Cfg.HTTPServer.Host + ":" + configs.Cfg.HTTPServer.Port)
 }

@@ -8,7 +8,6 @@ import (
 func Init() {
 	// Регистрация кастомных функций валидации
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterValidation("safety", isSafety)
-		v.RegisterValidation("fullName", isFullName)
+		v.RegisterValidation("isSafety", isSafety)
 	}
 }

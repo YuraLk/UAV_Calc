@@ -1,7 +1,6 @@
 package validators
 
 import (
-	"strings"
 	"unicode"
 
 	"github.com/go-playground/validator/v10"
@@ -33,14 +32,4 @@ var isSafety validator.Func = func(fl validator.FieldLevel) bool {
 	}
 
 	return true
-}
-
-var isFullName validator.Func = func(fl validator.FieldLevel) bool {
-	fullName := fl.Field().String()
-
-	// Разбиваем строку на компоненты (фамилия, имя, отчество)
-	names := strings.Fields(fullName)
-
-	// Проверяем наличие хотя бы фамилии и имени
-	return len(names) >= 2
 }

@@ -15,6 +15,7 @@ func Init() *gin.Engine {
 
 	apiGroup := router.Group("/api") // Добавляем префикс /api
 
+	AuthRouter{Prefix: apiGroup}.Router()
 	UserRouter{Prefix: apiGroup}.Router() // Добавляем роуты пользователя
 	CopterRouter{Prefix: apiGroup}.Router()
 	CompositRouter{Prefix: apiGroup}.Router()
