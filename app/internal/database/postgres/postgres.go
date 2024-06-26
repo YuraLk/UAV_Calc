@@ -25,5 +25,4 @@ func Connect() {
 
 	DB = db
 
-	defer db.Close(context.Background())
 }

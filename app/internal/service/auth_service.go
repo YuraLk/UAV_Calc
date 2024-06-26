@@ -50,7 +50,7 @@ func create_dto(ctx context.Context, userId uint, name string, surname string, p
 			Patronymic: patronymic,
 			Email:      email,
 			Phone:      phone,
-			Role:       access,
+			Role:       &access,
 		}, nil
 	}
 }

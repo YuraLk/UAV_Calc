@@ -27,7 +27,7 @@ func RoleMiddleware(roles []string) gin.HandlerFunc {
 			return
 		}
 
-		if data.UserDTO.Role != "" {
+		if data.UserDTO.Role != nil {
 			for _, s := range roles {
 				if s == "ADMIN" {
 					c.Set("user", data.UserDTO)
