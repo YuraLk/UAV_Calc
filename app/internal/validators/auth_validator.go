@@ -1,9 +1,12 @@
 package validators
 
 import (
+	"context"
 	"unicode"
 
+	"github.com/YuraLk/drone_calc/backend/internal/database/postgres"
 	"github.com/go-playground/validator/v10"
+	"github.com/jackc/pgx/v5"
 )
 
 var isSafety validator.Func = func(fl validator.FieldLevel) bool {
@@ -32,4 +35,19 @@ var isSafety validator.Func = func(fl validator.FieldLevel) bool {
 	}
 
 	return true
+}
+
+// Проверка уникальности почты
+var isEmailUnique validator.Func = func(fl validator.FieldLevel) bool {
+	email := fl.Field().String()
+
+	// Проверка уникальности почты
+	var email_is_exists bool
+	if err := postgres.DB.QueryRow(context.Background(), "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1) as is_exists", email).Scan(&email_is_exists); err != nil {
+		if err != pgx.ErrNoRows {
+			return false
+		}
+	}
+
+	return !email_is_exists
 }

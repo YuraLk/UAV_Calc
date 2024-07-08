@@ -9,5 +9,6 @@ func Init() {
 	// Регистрация кастомных функций валидации
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("isSafety", isSafety)
+		v.RegisterValidation("isEmailUnique", isEmailUnique)
 	}
 }
