@@ -5,3 +5,5 @@ static/*
 /app/docs
 
 *.sh
+
+init.sql

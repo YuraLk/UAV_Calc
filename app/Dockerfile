@@ -9,7 +9,7 @@ ENV GOPROXY="https://goproxy.io"
 
 COPY go.mod go.sum ./
 
-RUN go mod downloadы
+RUN go mod download
 
 COPY . .
 
